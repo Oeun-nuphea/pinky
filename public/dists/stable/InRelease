@@ -1,26 +1,36 @@
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA512
 
-Origin: Pinky
-Label: Pinky
-Suite: stable
-Codename: stable
-Architectures: all
-Components: main
-Description: Pinky APT Repository
+Date: Thu, 27 Aug 2026 08:20:14 +0000
+MD5Sum:
+ 6917faad2d678d00340aac5eb9503b84               38 Release
+ 3fdb9b49fff03080525076c061647a2e              414 main/binary-all/Packages
+ dc7348363691a7f74595d86b5ee19072              318 main/binary-all/Packages.gz
+SHA1:
+ 4ae2a106861e7148f8f3483c31e9951a7fdf754a               38 Release
+ 81a65503662133dbe589b18984cc6dced99c0129              414 main/binary-all/Packages
+ 70bb25d48d4bb1de10e79099acf6963fa44fa86a              318 main/binary-all/Packages.gz
+SHA256:
+ 8c7a65c27a1f78b6d9b66873682bbcc4a15de62868f109c98c3a09350d6cdcd6               38 Release
+ 7f3b77ca6da4daeeae635ec2941e1c732d37ab54fecce5cfa77570a357c73711              414 main/binary-all/Packages
+ b6a688aa3bba2819aa54609e3deee3d6fb3c3d9bcab1d61d9dcbf07109998f22              318 main/binary-all/Packages.gz
+SHA512:
+ c2c11a989aca06a225824e6413344d02cea9772115d745fde48e0d7d7bdd775f6c8b66a950bb37dd5f14f4f1b6b29136a26a0c563892b90594e330202e8a56f7               38 Release
+ 59906384f5974e14b0e2dd72b8161bc511e72fd3744f69b5005fb741277a847b6d1f94b511117e17eeb533e29ea5446e33387ffa97f581c7f0bc4faf6a867a40              414 main/binary-all/Packages
+ 99bc46d1785842e741a6b175ce566fffb141a792a6518048c2f8c57f7d7e7b9d91919b84bd0847622d30d87b8b019db07b29657301cb4d5154fb5abb617eccc1              318 main/binary-all/Packages.gz
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCgAdFiEEAkYuqLjDaqpddZFE2Pf3iQZzh4IFAmqP8OIACgkQ2Pf3iQZz
-h4KCdhAAmpi094dQbbfu1jv7a5bD9ebarzLBvB3Qf8tkpqmuD/IyoDfde0qjrAbR
-t87N4DvNhg6mt7FLAKz2WST6fwDRC5GwUgx8JzWWT+vM6bVI8aObXuPMETsugLmQ
-z9E/U3R1pk/nB2yBvXGtq7K5y4g3yosZYiWw07PJKWA5vMTc7KG3xPwPIfRxaUTR
-SmGHnv6sAJF+7GRmKwsVHQ27NI6Wx17+WvtyihcVEnJsSTV68g/vdtj+1VJTj0Zd
-jFSKJvQtQ6R0TVNDzYrAgzxa8I7WBVQYcEmDUV9L+vszqVjLGAzpMdyP7QSYVgmL
-XkqxIV1prrJMP2sIDPEGAHUwdnZrg7A3aI48T0O+DJw8HVG6Iub2L5Ve0XhBIGku
-16CvGM8hD+lGBB79Kp+jNPl8gaQdLdF0Xqv7I1CVk25AstFvkyxNKnb2l1zLUTUX
-veSI0YsYJd3XJcaim3Q4r2NvT9Hblv4S69yPw9RxLX5Ulv/PKWVmfh+cU4CwRZOh
-L2eDSym624Qn3w5lYvibtggODAx6x2cY3JMGsIWPcB11gU6u+iNVGHsPhhb2LDls
-8Jl8Q0cXWzFOvLqxc35sHpXdvWYPTJh5I1/AgFx81hyTDnlCSoknkSMOIoA1v0d+
-Qe/2ncFCzq7QS9srgqX6MB2mdmeIDGqgYfxRZNR9mEXbBuYQSoo=
-=pn+K
+iQIzBAEBCgAdFiEEAkYuqLjDaqpddZFE2Pf3iQZzh4IFAmqP81AACgkQ2Pf3iQZz
+h4L/fg/9FEf33Q2/EZGaY611UIjFnbUTUv0DQMW/TEui6b9x1EXDzXXLIcsZQO59
+zbDXQV4PlQFOOAzTch6CIk4Z0RYAVW8QhXWa8Osy0VYcCx3FvqxHYnSNIQ0mIszZ
+pKFt/Ypv0KEyrc2L/b3fI/eIvnxUskD94xswbkFa3oq6jiMjVjtVHK1Y5YRw3fGa
+rio51KWWV6CgEg1PB0coCybFkVdw2EGvPS3EW2YMthoxui3le2LF8i9JWrMF56zd
+GjXs0D7IkJIwgcyWsEeTVYzjeaZJvpT/ye9p9GPaMRP1l5k9Pv43HuZdmiUb0NkM
+53v1LiDeFTjiFCcxDR6P9czWG6TPkejp7ntw+LcEo8jsHJ6so0SJvx8RnHeHf3j2
+vI5oIY6p3EEp4ZxxRNLRCgnpjor18mo6kVkxz9LzPqXDPdgMsyX//saMYNdQkVzi
+koPM3uJ6tnTk+HDK+CsaBUme7zvY6Ap2GIOIVWXyb7w//6/E7AFrlwu+/90184pJ
+OKZowSIAOf5RpqYveqVmDxVkbVbTqGL3H7j+HSLJQ+VsNEf4HTT5hZfjDrexTlU4
+NwKuk1WwZc8STp9WB/wqbb6+41PDYxnXNwuAeFFAxW/JyOMuJ+SxSE2dxM+F3GNb
+lXd8+zMn/HEQQfwj5RJWRZMSMwPXLglfWrYwPhRIMsyceqZ7M7E=
+=j9Ra
 -----END PGP SIGNATURE-----

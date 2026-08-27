@@ -1,7 +1,17 @@
-Origin: Pinky
-Label: Pinky
-Suite: stable
-Codename: stable
-Architectures: all
-Components: main
-Description: Pinky APT Repository
+Date: Thu, 27 Aug 2026 08:20:14 +0000
+MD5Sum:
+ 6917faad2d678d00340aac5eb9503b84               38 Release
+ 3fdb9b49fff03080525076c061647a2e              414 main/binary-all/Packages
+ dc7348363691a7f74595d86b5ee19072              318 main/binary-all/Packages.gz
+SHA1:
+ 4ae2a106861e7148f8f3483c31e9951a7fdf754a               38 Release
+ 81a65503662133dbe589b18984cc6dced99c0129              414 main/binary-all/Packages
+ 70bb25d48d4bb1de10e79099acf6963fa44fa86a              318 main/binary-all/Packages.gz
+SHA256:
+ 8c7a65c27a1f78b6d9b66873682bbcc4a15de62868f109c98c3a09350d6cdcd6               38 Release
+ 7f3b77ca6da4daeeae635ec2941e1c732d37ab54fecce5cfa77570a357c73711              414 main/binary-all/Packages
+ b6a688aa3bba2819aa54609e3deee3d6fb3c3d9bcab1d61d9dcbf07109998f22              318 main/binary-all/Packages.gz
+SHA512:
+ c2c11a989aca06a225824e6413344d02cea9772115d745fde48e0d7d7bdd775f6c8b66a950bb37dd5f14f4f1b6b29136a26a0c563892b90594e330202e8a56f7               38 Release
+ 59906384f5974e14b0e2dd72b8161bc511e72fd3744f69b5005fb741277a847b6d1f94b511117e17eeb533e29ea5446e33387ffa97f581c7f0bc4faf6a867a40              414 main/binary-all/Packages
+ 99bc46d1785842e741a6b175ce566fffb141a792a6518048c2f8c57f7d7e7b9d91919b84bd0847622d30d87b8b019db07b29657301cb4d5154fb5abb617eccc1              318 main/binary-all/Packages.gz
