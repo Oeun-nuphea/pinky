@@ -1,0 +1,8 @@
+Package: pinky
+Version: 1.0.0
+Section: utils
+Priority: optional
+Architecture: all
+Maintainer: Pinky pinky@gmail.com
+Description: Pinky command line tool
+ A simple command line application called Pinky.

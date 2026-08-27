@@ -1,0 +1,26 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: Pinky
+Label: Pinky
+Suite: stable
+Codename: stable
+Architectures: all
+Components: main
+Description: Pinky APT Repository
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEAkYuqLjDaqpddZFE2Pf3iQZzh4IFAmqP8OIACgkQ2Pf3iQZz
+h4KCdhAAmpi094dQbbfu1jv7a5bD9ebarzLBvB3Qf8tkpqmuD/IyoDfde0qjrAbR
+t87N4DvNhg6mt7FLAKz2WST6fwDRC5GwUgx8JzWWT+vM6bVI8aObXuPMETsugLmQ
+z9E/U3R1pk/nB2yBvXGtq7K5y4g3yosZYiWw07PJKWA5vMTc7KG3xPwPIfRxaUTR
+SmGHnv6sAJF+7GRmKwsVHQ27NI6Wx17+WvtyihcVEnJsSTV68g/vdtj+1VJTj0Zd
+jFSKJvQtQ6R0TVNDzYrAgzxa8I7WBVQYcEmDUV9L+vszqVjLGAzpMdyP7QSYVgmL
+XkqxIV1prrJMP2sIDPEGAHUwdnZrg7A3aI48T0O+DJw8HVG6Iub2L5Ve0XhBIGku
+16CvGM8hD+lGBB79Kp+jNPl8gaQdLdF0Xqv7I1CVk25AstFvkyxNKnb2l1zLUTUX
+veSI0YsYJd3XJcaim3Q4r2NvT9Hblv4S69yPw9RxLX5Ulv/PKWVmfh+cU4CwRZOh
+L2eDSym624Qn3w5lYvibtggODAx6x2cY3JMGsIWPcB11gU6u+iNVGHsPhhb2LDls
+8Jl8Q0cXWzFOvLqxc35sHpXdvWYPTJh5I1/AgFx81hyTDnlCSoknkSMOIoA1v0d+
+Qe/2ncFCzq7QS9srgqX6MB2mdmeIDGqgYfxRZNR9mEXbBuYQSoo=
+=pn+K
+-----END PGP SIGNATURE-----

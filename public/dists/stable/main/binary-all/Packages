@@ -1,0 +1,14 @@
+Package: pinky
+Version: 1.0.0
+Architecture: all
+Maintainer: Pinky pinky@gmail.com
+Filename: pool/main/pinky_1.0.0_all.deb
+Size: 610
+MD5sum: 016c7be38371b02a8b94317467fb653e
+SHA1: d16035fb21f374ac7b1ce662bd0a6b63c1d33da4
+SHA256: fc6d94754e718042971926b129501aff9e1de6fc245678c181f984151c6bb70c
+Section: utils
+Priority: optional
+Description: Pinky command line tool
+ A simple command line application called Pinky.
+

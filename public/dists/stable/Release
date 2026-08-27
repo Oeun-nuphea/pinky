@@ -1,0 +1,7 @@
+Origin: Pinky
+Label: Pinky
+Suite: stable
+Codename: stable
+Architectures: all
+Components: main
+Description: Pinky APT Repository
