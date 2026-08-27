@@ -1,17 +1,25 @@
-Date: Thu, 27 Aug 2026 08:20:14 +0000
+Origin: Pinky
+Label: Pinky
+Suite: stable
+Codename: stable
+Date: Thu, 27 Aug 2026 08:34:37 +0000
+Architectures: all
+Components: main
+Description: Pinky APT Repository
+Date: Thu, 27 Aug 2026 08:34:41 +0000
 MD5Sum:
- 6917faad2d678d00340aac5eb9503b84               38 Release
+ 370d50f5b01af33acc65d0029e255dbb              204 Release
  3fdb9b49fff03080525076c061647a2e              414 main/binary-all/Packages
- dc7348363691a7f74595d86b5ee19072              318 main/binary-all/Packages.gz
+ eacc344aabc0d50982ae72382440d8db              318 main/binary-all/Packages.gz
 SHA1:
- 4ae2a106861e7148f8f3483c31e9951a7fdf754a               38 Release
+ 42d150af5e23464c595dd713dc77f6d94130802e              204 Release
  81a65503662133dbe589b18984cc6dced99c0129              414 main/binary-all/Packages
- 70bb25d48d4bb1de10e79099acf6963fa44fa86a              318 main/binary-all/Packages.gz
+ 8a00326bcd65d43cc3c213a681226dfeb78206a0              318 main/binary-all/Packages.gz
 SHA256:
- 8c7a65c27a1f78b6d9b66873682bbcc4a15de62868f109c98c3a09350d6cdcd6               38 Release
+ 263a1e2eeaac1595c2860bc96dc83a171fb604479b7d5605d85abfd1c2379f9f              204 Release
  7f3b77ca6da4daeeae635ec2941e1c732d37ab54fecce5cfa77570a357c73711              414 main/binary-all/Packages
- b6a688aa3bba2819aa54609e3deee3d6fb3c3d9bcab1d61d9dcbf07109998f22              318 main/binary-all/Packages.gz
+ 37a8b9d49021556ecd97325d71b93dd4fb168f4365285d8ee3a9776fbb7c80d6              318 main/binary-all/Packages.gz
 SHA512:
- c2c11a989aca06a225824e6413344d02cea9772115d745fde48e0d7d7bdd775f6c8b66a950bb37dd5f14f4f1b6b29136a26a0c563892b90594e330202e8a56f7               38 Release
+ 827e9efdab5ceb0646841ae0384778d49e93cd197adc306aca9e4f406eb8fbff22b4dc50b5eab23f8d4351ddc5d730581ea816595dfca00e073014803e4c7ef5              204 Release
  59906384f5974e14b0e2dd72b8161bc511e72fd3744f69b5005fb741277a847b6d1f94b511117e17eeb533e29ea5446e33387ffa97f581c7f0bc4faf6a867a40              414 main/binary-all/Packages
- 99bc46d1785842e741a6b175ce566fffb141a792a6518048c2f8c57f7d7e7b9d91919b84bd0847622d30d87b8b019db07b29657301cb4d5154fb5abb617eccc1              318 main/binary-all/Packages.gz
+ fab92ab4c4f201060a7de9ee0e2b88321599ce7e64fa0e1f40847bccbc5d463c306868f1893e0258fc9a9b3f2517bb92e5672bb20b90dbdb514bf2826536eea4              318 main/binary-all/Packages.gz
