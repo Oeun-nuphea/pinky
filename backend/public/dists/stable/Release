@@ -1,0 +1,8 @@
+Origin: Pinky Developer Platform
+Label: Pinky
+Suite: stable
+Codename: stable
+Architectures: amd64 all
+Components: main
+Description: Official Pinky Developer Package Repository
+Date: Thu, 27 Aug 2026 09:19:47 GMT
