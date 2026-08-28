@@ -1,0 +1,33 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Origin: Pinky Developer Platform
+Label: Pinky
+Suite: stable
+Codename: stable
+Version: 1.0
+Architectures: amd64 all
+Components: main
+Description: Official Pinky Developer Package Repository
+Date: Thu, 27 Aug 2026 10:20:47 +0000
+SHA256:
+ ccca530bbcd51203c94a40d3e505f3e4b822bba7ee4a720558b7c1b24661fe11 484 main/binary-amd64/Packages
+ 9667394502cabc6b6dbfd040f6cdd014136eae1018b216fdf6e885e10d016de0 372 main/binary-amd64/Packages.gz
+ ccca530bbcd51203c94a40d3e505f3e4b822bba7ee4a720558b7c1b24661fe11 484 main/binary-all/Packages
+ 9667394502cabc6b6dbfd040f6cdd014136eae1018b216fdf6e885e10d016de0 372 main/binary-all/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEF+RdJSSFn/1mj0+0VU/Seg1ou3YFAmqQD38ACgkQVU/Seg1o
+u3Z7jQ//cQ4c1272MbKoeY0ewyijqefxtQhFkqQ6WXrjEBJessukROWlqo8BwFmU
+iRK+0PAk+7dkI7PNabr7QmotVZrhPbjgzwmgYPkFR69/Q4Gz96q6PJMi0ZoNA+37
+gkbM77TmACtb5ZkzIuFZeePme4m1uvzFcKOdAH0ZjSgT+Mc6ZEXi916uQ0KMaj5d
+C3/CvoVId6428cODGbjRnYxiQXkPdupnK2d5UGfuM1QXbD2XhYzHMnDRtnbixlu8
+hafCESEGxmF48CZFpchuPvSBE4Y4dxe9+UiG/2ZVy7mURkAEvsGyS0THRnMopZ7V
+r0KSxpCrCorDbtCcfR3yqEn81kB673Jy/0wGvorpU9cbUixx8h3PIIi1C4XTbjQv
+oeGY0HDSgQt5B+AONjjLQXXtMQdkkUunX/YgZGnvkTaXIsdznWHDh9x+yAk3DM//
+cnT9W4Nu7qzs62fmNbPERPIo4qAvDXkO4hhw1y70auN6Yr8QadaA3VcAdMGZhMrc
+A1x93Yiug/vc8RYCp1tfOrRXjvzPUjs9WTqh69TN7lQu4PT7vfOHm6mZoXM4voxn
+b9m84tfmNiPPujc5zofOOhB2+pan5uOdlqtqCAeBNoLAKPc1I2c9EIyUQh5PImle
+Nn+3wkbzrtzSjAFt554Im1sDWyn77BRSiHzGa99Z2wgHPTYNva0=
+=mEGl
+-----END PGP SIGNATURE-----

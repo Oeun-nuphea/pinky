@@ -2,7 +2,13 @@ Origin: Pinky Developer Platform
 Label: Pinky
 Suite: stable
 Codename: stable
+Version: 1.0
 Architectures: amd64 all
 Components: main
 Description: Official Pinky Developer Package Repository
-Date: Thu, 27 Aug 2026 09:19:47 GMT
+Date: Thu, 27 Aug 2026 10:20:47 +0000
+SHA256:
+ ccca530bbcd51203c94a40d3e505f3e4b822bba7ee4a720558b7c1b24661fe11 484 main/binary-amd64/Packages
+ 9667394502cabc6b6dbfd040f6cdd014136eae1018b216fdf6e885e10d016de0 372 main/binary-amd64/Packages.gz
+ ccca530bbcd51203c94a40d3e505f3e4b822bba7ee4a720558b7c1b24661fe11 484 main/binary-all/Packages
+ 9667394502cabc6b6dbfd040f6cdd014136eae1018b216fdf6e885e10d016de0 372 main/binary-all/Packages.gz

@@ -96,8 +96,10 @@ export default function ProjectCard({
           projectId={project.id}
           projectSlug={project.slug}
           installCmd={project.installCmd}
+          previewGif={project.previewGif}
         />
       )}
+
 
       {/* Social Actions Bar */}
       <div

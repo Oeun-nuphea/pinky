@@ -2,23 +2,13 @@ Package: arttime
 Version: 2.4.0
 Section: utils
 Priority: optional
-Architecture: amd64
-Maintainer: poetaman <poetaman@pinky.dev>
-Filename: pool/main/a/arttime/arttime_2.4.0_amd64.deb
-Size: 1048576
-SHA256: a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0
-Description: arttime - Terminal art and live clock tool bringing aesthetic ANSI animations and custom widgets directly into your shell session.
- A Linux command line application hosted on Pinky Developer Social Platform.
-
-Package: pinky-cli
-Version: 1.0.0
-Section: utils
-Priority: optional
 Architecture: all
-Maintainer: pinky_creator <pinky_creator@pinky.dev>
-Filename: pool/main/p/pinky-cli/pinky_1.0.0_all.deb
-Size: 610
-SHA256: 7f93b59368d4a9840ef7bf4b1ab23871f3bb91a1a73404c0d02462e08e64c398
-Description: pinky-cli - Official Pinky developer social CLI. Experience interactive project discovery, package verification, and terminal sandboxing from your command line.
- A Linux command line application hosted on Pinky Developer Social Platform.
+Maintainer: poetaman <poetaman@pinky.dev>
+Filename: pool/main/a/arttime/arttime_2.4.0_all.deb
+Size: 297436
+MD5sum: 69b7f3173584fcf53c30743f7978131a
+SHA256: 00662a01b0bdb53fe48955d7b22b2b674cb95c568a32c0fd6ee72752d83fcd66
+Description: arttime - Terminal art and live clock tool
+ Brings curated ASCII art, vibrant terminal color palettes, and real-time
+ updating clock widgets directly to your shell.
 

@@ -54,6 +54,7 @@ export interface Project {
   demoCmd: string;
   demoArgs: string[];
   isLiveSupported: boolean;
+  previewGif?: string;   // optional GIF/image shown as lightweight preview
   starsCount: number;
   likesCount: number;
   runsCount: number;
@@ -199,6 +200,7 @@ arttime
         demoCmd: 'python3',
         demoArgs: ['backend/demos/arttime_demo.py'],
         isLiveSupported: true,
+        previewGif: 'https://user-images.githubusercontent.com/71736629/177451474-4d868e17-d577-4500-adaa-f00c49bc78b7.gif',
         starsCount: 540,
         likesCount: 1200,
         runsCount: 3840,

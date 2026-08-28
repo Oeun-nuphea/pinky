@@ -190,8 +190,10 @@ export default function ProjectDetailPage({
             projectId={project.id}
             projectSlug={project.slug}
             installCmd={project.installCmd}
-            autoStart={true}
+            previewGif={project.previewGif}
+            autoStart={false}
           />
+
         </div>
       )}
 
