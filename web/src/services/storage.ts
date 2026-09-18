@@ -64,7 +64,26 @@ export class ArtworkStorageService {
     }
   }
 
+  private writeLock: Promise<void> = Promise.resolve();
+
   public async create(dto: CreateArtworkDto, filename: string): Promise<Artwork> {
+    return new Promise<Artwork>((resolve, reject): void => {
+      this.writeLock = this.writeLock
+        .then(async (): Promise<void> => {
+          try {
+            const artwork: Artwork = await this.performCreate(dto, filename);
+            resolve(artwork);
+          } catch (error) {
+            reject(error);
+          }
+        })
+        .catch((error): void => {
+          reject(error);
+        });
+    });
+  }
+
+  private async performCreate(dto: CreateArtworkDto, filename: string): Promise<Artwork> {
     const artworks: Artwork[] = await this.getAll();
     const uniqueId: string = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
     const newArtwork: Artwork = {

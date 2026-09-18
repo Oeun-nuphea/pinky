@@ -152,6 +152,18 @@ document.addEventListener('DOMContentLoaded', () => {
     clearSelectedFile();
   });
 
+  titleInput.addEventListener('input', () => {
+    if (feedbackMessage.classList.contains('alert-error')) {
+      clearFeedback();
+    }
+  });
+
+  authorInput.addEventListener('input', () => {
+    if (feedbackMessage.classList.contains('alert-error')) {
+      clearFeedback();
+    }
+  });
+
   // Drag and drop support
   ['dragenter', 'dragover'].forEach((eventName) => {
     dropZone.addEventListener(eventName, (e) => {

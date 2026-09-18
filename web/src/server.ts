@@ -28,8 +28,17 @@ const fileFilter = (
   callback: FileFilterCallback
 ): void => {
   const allowedExtensions: string[] = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+  const allowedMimeTypes: string[] = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml'
+  ];
   const ext: string = path.extname(file.originalname).toLowerCase();
-  if (allowedExtensions.includes(ext)) {
+  const mime: string = file.mimetype.toLowerCase();
+
+  if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(mime)) {
     callback(null, true);
   } else {
     callback(new Error('Invalid file type. Only JPG, PNG, GIF, WEBP, and SVG images are permitted.'));

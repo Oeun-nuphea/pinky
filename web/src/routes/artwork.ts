@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import fs from 'fs';
 import multer from 'multer';
 import { ArtworkStorageService } from '../services/storage';
 import { ApiResponse, Artwork, CreateArtworkDto } from '../types/artwork';
@@ -7,6 +8,14 @@ interface ArtworkBody {
   title?: string;
   author?: string;
   description?: string;
+}
+
+async function safeDeleteFile(filePath: string): Promise<void> {
+  try {
+    await fs.promises.unlink(filePath);
+  } catch {
+    // Ignore error if file does not exist
+  }
 }
 
 export function createArtworkRouter(storageService: ArtworkStorageService, upload: multer.Multer): Router {
@@ -38,11 +47,13 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         const description: string = typeof body.description === 'string' ? body.description.trim() : '';
 
         if (!title) {
+          await safeDeleteFile(req.file.path);
           res.status(400).json({ success: false, error: 'Artwork title is required.' });
           return;
         }
 
         if (!author) {
+          await safeDeleteFile(req.file.path);
           res.status(400).json({ success: false, error: 'Artist/Author name is required.' });
           return;
         }
@@ -56,6 +67,9 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         const created: Artwork = await storageService.create(dto, req.file.filename);
         res.status(201).json({ success: true, data: created });
       } catch (error) {
+        if (req.file) {
+          await safeDeleteFile(req.file.path);
+        }
         const errorMessage: string = error instanceof Error ? error.message : 'Failed to save artwork';
         res.status(500).json({ success: false, error: errorMessage });
       }
