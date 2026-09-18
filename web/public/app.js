@@ -418,7 +418,12 @@ document.addEventListener('DOMContentLoaded', () => {
         body: formData
       });
 
-      const result = await response.json();
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        throw new Error(`Server response error (HTTP ${response.status})`);
+      }
 
       if (!response.ok || !result.success) {
         throw new Error(result.error || 'Failed to upload artwork');

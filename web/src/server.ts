@@ -91,11 +91,12 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void =>
     _next(err);
     return;
   }
-  const isClientError: boolean = err instanceof multer.MulterError || err.message.includes('Invalid file type');
+  const errorMessage: string = err instanceof Error ? err.message : typeof err === 'string' ? err : 'Internal Server Error';
+  const isClientError: boolean = err instanceof multer.MulterError || errorMessage.includes('Invalid file type');
   const statusCode: number = isClientError ? 400 : 500;
   res.status(statusCode).json({
     success: false,
-    error: err.message || 'Internal Server Error'
+    error: errorMessage
   });
 });
 

@@ -146,8 +146,9 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         if (typeof body.tags === 'string' && body.tags.trim().length > 0) {
           tags = body.tags
             .split(',')
-            .map((t: string): string => t.trim().replace(/^#+/, ''))
-            .filter((t: string): boolean => t.length > 0);
+            .map((t: string): string => t.trim().replace(/^#+/, '').slice(0, 30))
+            .filter((t: string): boolean => t.length > 0)
+            .slice(0, 10);
         }
 
         if (!title) {
