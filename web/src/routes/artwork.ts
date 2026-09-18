@@ -6,6 +6,7 @@ import {
   ApiResponse,
   Artwork,
   ArtworkQueryOptions,
+  ArtworkStats,
   CreateArtworkDto,
   PaginatedArtworks
 } from '../types/artwork';
@@ -55,6 +56,17 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
       res.status(200).json({ success: true, data: result });
     } catch (error) {
       const errorMessage: string = error instanceof Error ? error.message : 'Failed to retrieve artworks';
+      res.status(500).json({ success: false, error: errorMessage });
+    }
+  });
+
+  // GET /api/artworks/stats
+  router.get('/stats', async (_req: Request, res: Response<ApiResponse<ArtworkStats>>): Promise<void> => {
+    try {
+      const stats: ArtworkStats = await storageService.getStats();
+      res.status(200).json({ success: true, data: stats });
+    } catch (error) {
+      const errorMessage: string = error instanceof Error ? error.message : 'Failed to retrieve community stats';
       res.status(500).json({ success: false, error: errorMessage });
     }
   });

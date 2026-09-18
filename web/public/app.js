@@ -74,6 +74,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const emptyResetBtn = document.getElementById('empty-reset-btn');
   const toastContainer = document.getElementById('toast-container');
   const backToTopBtn = document.getElementById('back-to-top-btn');
+  const statTotalArt = document.getElementById('stat-total-art');
+  const statTotalLikes = document.getElementById('stat-total-likes');
+  const statTotalArtists = document.getElementById('stat-total-artists');
 
   // State
   let currentFile = null;
@@ -319,11 +322,10 @@ document.addEventListener('DOMContentLoaded', () => {
           lightboxLikesCount.textContent = updated.likes.toString();
         }
         showToast('Artwork liked! ❤️', '❤️');
+        loadCommunityStats();
       }
     } catch (err) {
       console.error('Error liking artwork:', err);
-    }
-  }
     }
   }
 
@@ -398,12 +400,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      imagePreview.src = e.target.result;
+      const dataUrl = e.target.result;
+      imagePreview.src = dataUrl;
+
+      const img = new Image();
+      img.onload = () => {
+        previewFilesize.textContent = `${img.naturalWidth} × ${img.naturalHeight} px • ${formatFileSize(file.size)}`;
+      };
+      img.src = dataUrl;
+
       dropPrompt.classList.add('hidden');
       previewContainer.classList.remove('hidden');
       clearFeedback();
     };
     reader.readAsDataURL(file);
+  }
+
+  // Community Stats Loader
+  async function loadCommunityStats() {
+    try {
+      const res = await fetch('/api/artworks/stats');
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.success && json.data) {
+        if (statTotalArt) statTotalArt.textContent = json.data.totalArtworks.toLocaleString();
+        if (statTotalLikes) statTotalLikes.textContent = json.data.totalLikes.toLocaleString();
+        if (statTotalArtists) statTotalArtists.textContent = json.data.totalArtists.toLocaleString();
+      }
+    } catch {
+      // Non-critical background telemetry
+    }
   }
 
   function clearSelectedFile() {
@@ -512,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearSelectedFile();
       currentPage = 1;
       await loadArtworks();
+      loadCommunityStats();
       galleryGrid.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       console.error('Submit error:', err);
@@ -698,6 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showFeedback('Artwork deleted successfully.', 'success');
       showToast('Artwork deleted.', '🗑️');
       await loadArtworks();
+      loadCommunityStats();
     } catch (err) {
       alert(err.message || 'Error deleting artwork');
     } finally {
@@ -797,4 +825,5 @@ document.addEventListener('DOMContentLoaded', () => {
   loadArtworks().then(() => {
     checkDirectDeepLink();
   });
+  loadCommunityStats();
 });

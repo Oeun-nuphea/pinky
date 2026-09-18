@@ -46,8 +46,16 @@ export interface RawArtworkRecord {
   createdAt?: string;
 }
 
+export interface ArtworkStats {
+  totalArtworks: number;
+  totalLikes: number;
+  totalArtists: number;
+  categoryCounts: Record<string, number>;
+}
+
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
 }
+

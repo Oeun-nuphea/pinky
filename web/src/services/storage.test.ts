@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import fs from 'fs';
 import path from 'path';
 import { ArtworkStorageService } from './storage';
-import { Artwork, CreateArtworkDto, PaginatedArtworks } from '../types/artwork';
+import { Artwork, ArtworkStats, CreateArtworkDto, PaginatedArtworks } from '../types/artwork';
 
 const testBaseDir: string = path.join(__dirname, '..', '..', 'scratch_test_dir');
 
@@ -154,6 +154,20 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
 
     const nonExistentDelete: boolean = await service.delete('fake-id-999');
     assert.strictEqual(nonExistentDelete, false);
+  });
+
+  await t.test('computes community statistics accurately', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
+    const stats: ArtworkStats = await service.getStats();
+
+    assert.strictEqual(typeof stats.totalArtworks, 'number');
+    assert.strictEqual(typeof stats.totalLikes, 'number');
+    assert.strictEqual(typeof stats.totalArtists, 'number');
+    assert.strictEqual(typeof stats.categoryCounts, 'object');
+
+    assert.strictEqual(stats.totalArtworks >= 2, true);
+    assert.strictEqual(stats.totalLikes >= 2, true);
+    assert.strictEqual(stats.totalArtists >= 2, true);
   });
 
   cleanupTestDir();

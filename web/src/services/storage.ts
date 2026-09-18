@@ -3,6 +3,7 @@ import path from 'path';
 import {
   Artwork,
   ArtworkQueryOptions,
+  ArtworkStats,
   CreateArtworkDto,
   PaginatedArtworks,
   RawArtworkRecord
@@ -244,5 +245,30 @@ export class ArtworkStorageService {
     }
 
     return true;
+  }
+
+  public async getStats(): Promise<ArtworkStats> {
+    const artworks: Artwork[] = await this.getAll();
+    const totalArtworks: number = artworks.length;
+    let totalLikes: number = 0;
+    const artistsSet: Set<string> = new Set<string>();
+    const categoryCounts: Record<string, number> = {};
+
+    for (const art of artworks) {
+      totalLikes += art.likes;
+      const cleanAuthor: string = art.author.trim();
+      if (cleanAuthor.length > 0) {
+        artistsSet.add(cleanAuthor.toLowerCase());
+      }
+      const cat: string = art.category && art.category.trim() ? art.category.trim() : 'Digital';
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    }
+
+    return {
+      totalArtworks,
+      totalLikes,
+      totalArtists: artistsSet.size,
+      categoryCounts
+    };
   }
 }
