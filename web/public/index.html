@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinky Artwork Community</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <span class="brand-icon">🐷</span>
+        <div class="brand-text">
+          <h1>Pinky Art Gallery</h1>
+          <p class="subtitle">Share your creativity with the community</p>
+        </div>
+      </div>
+      <a href="#upload-section" class="btn btn-primary btn-sm">Post Artwork</a>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Upload Section -->
+    <section id="upload-section" class="card upload-card">
+      <div class="card-header">
+        <h2>🎨 Post Your Artwork</h2>
+        <p>Upload your digital art, drawings, or screenshots</p>
+      </div>
+
+      <div id="feedback-message" class="alert hidden" role="alert"></div>
+
+      <form id="artwork-form" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="title-input">Artwork Title <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="title-input" 
+              name="title" 
+              placeholder="e.g. Sunset over Pink Hills" 
+              required 
+              maxlength="100"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="author-input">Artist / Author <span class="required">*</span></label>
+            <input 
+              type="text" 
+              id="author-input" 
+              name="author" 
+              placeholder="e.g. nuphea" 
+              required 
+              maxlength="60"
+            >
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description-input">Description <span class="optional">(optional)</span></label>
+          <textarea 
+            id="description-input" 
+            name="description" 
+            rows="3" 
+            placeholder="Tell us about the inspiration, medium, or tools used..."
+            maxlength="500"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Artwork Image <span class="required">*</span></label>
+          <div class="drop-zone" id="drop-zone">
+            <input 
+              type="file" 
+              id="file-input" 
+              name="image" 
+              accept="image/png, image/jpeg, image/gif, image/webp, image/svg+xml" 
+              required
+            >
+            <div class="drop-zone-prompt" id="drop-zone-prompt">
+              <span class="upload-icon">📁</span>
+              <p><strong>Click to browse</strong> or drag &amp; drop an image here</p>
+              <span class="file-hint">PNG, JPG, GIF, WEBP, or SVG up to 10MB</span>
+            </div>
+            <div class="preview-container hidden" id="preview-container">
+              <img id="image-preview" src="" alt="Selected artwork preview">
+              <button type="button" class="btn btn-secondary btn-sm remove-preview" id="btn-remove-file">Change Image</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" id="submit-btn" class="btn btn-primary">
+            <span class="btn-text">Publish Artwork</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery-section">
+      <div class="gallery-header">
+        <div>
+          <h2>Community Gallery</h2>
+          <span class="counter-badge" id="artwork-count">0 artworks</span>
+        </div>
+        <button id="refresh-btn" class="btn btn-secondary btn-sm" title="Refresh gallery">
+          🔄 Refresh
+        </button>
+      </div>
+
+      <div id="gallery-loading" class="loading-container hidden">
+        <div class="spinner"></div>
+        <p>Loading artworks...</p>
+      </div>
+
+      <div id="gallery-empty" class="empty-state hidden">
+        <span class="empty-icon">🎨</span>
+        <h3>No artworks posted yet</h3>
+        <p>Be the first artist to publish your work!</p>
+      </div>
+
+      <div id="gallery-grid" class="gallery-grid"></div>
+    </section>
+  </main>
+
+  <!-- Image Lightbox Modal -->
+  <div id="lightbox-modal" class="lightbox-modal hidden" role="dialog" aria-modal="true">
+    <div class="lightbox-overlay" id="lightbox-overlay"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" id="lightbox-close" aria-label="Close image">&times;</button>
+      <img id="lightbox-img" src="" alt="">
+      <div class="lightbox-caption">
+        <h3 id="lightbox-title"></h3>
+        <p id="lightbox-author"></p>
+        <p id="lightbox-desc" class="lightbox-desc"></p>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>🐷 Pinky Project &bull; Built with Node.js, Express &amp; TypeScript</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
