@@ -1,3 +1,15 @@
+export interface ArtworkComment {
+  id: string;
+  author: string;
+  text: string;
+  createdAt: string;
+}
+
+export interface CreateCommentDto {
+  author: string;
+  text: string;
+}
+
 export interface Artwork {
   id: string;
   title: string;
@@ -7,6 +19,7 @@ export interface Artwork {
   tags: string[];
   imageUrl: string;
   likes: number;
+  comments: ArtworkComment[];
   createdAt: string;
 }
 
@@ -43,6 +56,7 @@ export interface RawArtworkRecord {
   tags?: string[];
   imageUrl?: string;
   likes?: number;
+  comments?: ArtworkComment[];
   createdAt?: string;
 }
 
@@ -50,6 +64,7 @@ export interface ArtworkStats {
   totalArtworks: number;
   totalLikes: number;
   totalArtists: number;
+  totalComments: number;
   categoryCounts: Record<string, number>;
 }
 

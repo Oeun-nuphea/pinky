@@ -3,7 +3,14 @@ import assert from 'node:assert';
 import fs from 'fs';
 import path from 'path';
 import { ArtworkStorageService } from './storage';
-import { Artwork, ArtworkStats, CreateArtworkDto, PaginatedArtworks } from '../types/artwork';
+import {
+  Artwork,
+  ArtworkComment,
+  ArtworkStats,
+  CreateArtworkDto,
+  CreateCommentDto,
+  PaginatedArtworks
+} from '../types/artwork';
 
 const testBaseDir: string = path.join(__dirname, '..', '..', 'scratch_test_dir');
 
@@ -156,6 +163,52 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     assert.strictEqual(nonExistentDelete, false);
   });
 
+  await t.test('handles comments lifecycle and retrieval', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
+    const created: Artwork = await service.create(
+      {
+        title: 'Critique Target Piece',
+        author: 'CriticArtist',
+        description: 'Open to feedback',
+        category: 'Digital'
+      },
+      'critique.png'
+    );
+
+    const initialComments: ArtworkComment[] | null = await service.getComments(created.id);
+    assert.notStrictEqual(initialComments, null);
+    if (initialComments) {
+      assert.strictEqual(initialComments.length, 0);
+    }
+
+    const commentDto: CreateCommentDto = {
+      author: 'ArtReviewer',
+      text: 'Incredible lighting and composition!'
+    };
+
+    const added: ArtworkComment | null = await service.addComment(created.id, commentDto);
+    assert.notStrictEqual(added, null);
+    if (added) {
+      assert.strictEqual(typeof added.id, 'string');
+      assert.strictEqual(added.author, 'ArtReviewer');
+      assert.strictEqual(added.text, 'Incredible lighting and composition!');
+      assert.strictEqual(typeof added.createdAt, 'string');
+    }
+
+    const fetchedComments: ArtworkComment[] | null = await service.getComments(created.id);
+    assert.notStrictEqual(fetchedComments, null);
+    if (fetchedComments) {
+      assert.strictEqual(fetchedComments.length, 1);
+      assert.strictEqual(fetchedComments[0].author, 'ArtReviewer');
+    }
+
+    const nonExistentComment: ArtworkComment | null = await service.addComment('fake-id', commentDto);
+    assert.strictEqual(nonExistentComment, null);
+
+    const nonExistentGet: ArtworkComment[] | null = await service.getComments('fake-id');
+    assert.strictEqual(nonExistentGet, null);
+  });
+
   await t.test('computes community statistics accurately', async (): Promise<void> => {
     const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
     const stats: ArtworkStats = await service.getStats();
@@ -163,11 +216,13 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     assert.strictEqual(typeof stats.totalArtworks, 'number');
     assert.strictEqual(typeof stats.totalLikes, 'number');
     assert.strictEqual(typeof stats.totalArtists, 'number');
+    assert.strictEqual(typeof stats.totalComments, 'number');
     assert.strictEqual(typeof stats.categoryCounts, 'object');
 
     assert.strictEqual(stats.totalArtworks >= 2, true);
     assert.strictEqual(stats.totalLikes >= 2, true);
     assert.strictEqual(stats.totalArtists >= 2, true);
+    assert.strictEqual(stats.totalComments >= 1, true);
   });
 
   cleanupTestDir();

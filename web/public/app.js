@@ -77,6 +77,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const statTotalArt = document.getElementById('stat-total-art');
   const statTotalLikes = document.getElementById('stat-total-likes');
   const statTotalArtists = document.getElementById('stat-total-artists');
+  const statTotalComments = document.getElementById('stat-total-comments');
+
+  // Lightbox comments elements
+  const lightboxCommentsSection = document.querySelector('.lightbox-comments-section');
+  const lightboxCommentsCount = document.getElementById('lightbox-comments-count');
+  const lightboxCommentsList = document.getElementById('lightbox-comments-list');
+  const lightboxCommentForm = document.getElementById('lightbox-comment-form');
+  const commentAuthorInput = document.getElementById('comment-author-input');
+  const commentTextInput = document.getElementById('comment-text-input');
+
+  // Favorites helpers
+  function getFavorites() {
+    try {
+      const stored = localStorage.getItem('pinky-favorites');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function addFavorite(id) {
+    const favs = getFavorites();
+    if (!favs.includes(id)) {
+      favs.push(id);
+      localStorage.setItem('pinky-favorites', JSON.stringify(favs));
+    }
+  }
 
   // State
   let currentFile = null;
@@ -163,6 +190,31 @@ document.addEventListener('DOMContentLoaded', () => {
     renderSkeletons(6);
 
     try {
+      if (activeCategory === 'favorites') {
+        const favIds = getFavorites();
+        const response = await fetch(`/api/artworks?limit=100&sortBy=${encodeURIComponent(sortBy)}`);
+        if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+        const result = await response.json();
+        if (thisFetchId !== activeFetchId) return;
+
+        if (result.success && result.data) {
+          const allArt = result.data.artworks || [];
+          let filtered = allArt.filter((a) => favIds.includes(a.id));
+          if (searchQuery.trim()) {
+            const q = searchQuery.trim().toLowerCase();
+            filtered = filtered.filter((a) =>
+              a.title.toLowerCase().includes(q) ||
+              a.author.toLowerCase().includes(q) ||
+              (a.tags || []).some((t) => t.toLowerCase().includes(q))
+            );
+          }
+          currentArtworksList = filtered;
+          renderGallery(currentArtworksList);
+          renderPagination({ total: filtered.length, page: 1, limit: 100, totalPages: 1 });
+          return;
+        }
+      }
+
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: '12',
@@ -207,7 +259,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (artworks.length === 0) {
       artworkCount.textContent = '0 artworks';
       galleryEmpty.classList.remove('hidden');
-      if (searchQuery || activeCategory !== 'all') {
+      if (activeCategory === 'favorites') {
+        emptyStateText.textContent = 'You have not saved any favorites yet. Click the ❤️ button on any artwork to add it to your favorites!';
+      } else if (searchQuery || activeCategory !== 'all') {
         emptyStateText.textContent = 'No artworks match your search or filter criteria.';
       } else {
         emptyStateText.textContent = 'Be the first artist to publish artwork in this collection!';
@@ -234,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .join('');
 
       const firstLetter = (art.author || 'A').trim().charAt(0).toUpperCase() || 'A';
+      const commentCount = (art.comments || []).length;
 
       card.innerHTML = `
         <div class="art-card-img-wrapper" title="Click to inspect full artwork">
@@ -253,6 +308,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <p class="art-card-desc">${art.description ? escapeHtml(art.description) : '<em>No description provided</em>'}</p>
           ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ''}
           <div class="art-card-footer">
+            <span class="card-comment-count" title="${commentCount} comment${commentCount === 1 ? '' : 's'}">💬 ${commentCount}</span>
             <span>Posted ${dateStr}</span>
           </div>
         </div>
@@ -331,6 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
           activeModalArtwork.likes = updated.likes;
           lightboxLikesCount.textContent = updated.likes.toString();
         }
+        addFavorite(id);
         showToast('Artwork liked! ❤️', '❤️');
         loadCommunityStats();
       }
@@ -436,6 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (statTotalArt) statTotalArt.textContent = json.data.totalArtworks.toLocaleString();
         if (statTotalLikes) statTotalLikes.textContent = json.data.totalLikes.toLocaleString();
         if (statTotalArtists) statTotalArtists.textContent = json.data.totalArtists.toLocaleString();
+        if (statTotalComments) statTotalComments.textContent = (json.data.totalComments || 0).toLocaleString();
       }
     } catch {
       // Non-critical background telemetry
@@ -675,6 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Deep linking: update URL hash
     history.replaceState(null, '', `#art-${art.id}`);
+    loadArtworkComments(art.id);
     document.body.style.overflow = 'hidden';
     lightboxModal.classList.remove('hidden');
   }
@@ -683,10 +742,125 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxModal.classList.add('hidden');
     lightboxImg.src = '';
     activeModalArtwork = null;
+    if (lightboxCommentForm) lightboxCommentForm.reset();
     document.body.style.overflow = '';
     if (window.location.hash.startsWith('#art-')) {
       history.replaceState(null, '', window.location.pathname + window.location.search);
     }
+  }
+
+  // Comments helpers
+  function formatTimeAgo(dateStr) {
+    try {
+      const date = new Date(dateStr);
+      const diffSecs = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (diffSecs < 60) return 'just now';
+      const diffMins = Math.floor(diffSecs / 60);
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays < 30) return `${diffDays}d ago`;
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    } catch {
+      return '';
+    }
+  }
+
+  function renderLightboxComments(comments) {
+    if (!lightboxCommentsList || !lightboxCommentsCount) return;
+    lightboxCommentsCount.textContent = (comments.length || 0).toString();
+
+    if (comments.length === 0) {
+      lightboxCommentsList.innerHTML = `<p class="comments-empty">No critiques or comments yet. Be the first to share your thoughts!</p>`;
+      return;
+    }
+
+    lightboxCommentsList.innerHTML = comments
+      .map((c) => {
+        const timeAgo = formatTimeAgo(c.createdAt);
+        return `
+          <div class="comment-item">
+            <div class="comment-item-header">
+              <span class="comment-author">${escapeHtml(c.author)}</span>
+              <span class="comment-time">${escapeHtml(timeAgo)}</span>
+            </div>
+            <p class="comment-text">${escapeHtml(c.text)}</p>
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  async function loadArtworkComments(artworkId) {
+    if (!lightboxCommentsList) return;
+    lightboxCommentsList.innerHTML = `<p class="comments-empty">Loading feedback...</p>`;
+    try {
+      const response = await fetch(`/api/artworks/${encodeURIComponent(artworkId)}/comments`);
+      if (!response.ok) throw new Error('Failed to load comments');
+      const result = await response.json();
+      if (result.success && Array.isArray(result.data)) {
+        renderLightboxComments(result.data);
+      } else {
+        renderLightboxComments([]);
+      }
+    } catch {
+      renderLightboxComments([]);
+    }
+  }
+
+  if (lightboxCommentForm) {
+    lightboxCommentForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!activeModalArtwork) return;
+
+      const author = commentAuthorInput.value.trim();
+      const text = commentTextInput.value.trim();
+      if (!author || !text) return;
+
+      const submitBtn = document.getElementById('comment-submit-btn');
+      const btnText = submitBtn ? submitBtn.querySelector('.comment-btn-text') : null;
+      const btnSpinner = submitBtn ? submitBtn.querySelector('.comment-btn-spinner') : null;
+
+      if (submitBtn) submitBtn.disabled = true;
+      if (btnText) btnText.textContent = 'Posting...';
+      if (btnSpinner) btnSpinner.classList.remove('hidden');
+
+      try {
+        const response = await fetch(`/api/artworks/${encodeURIComponent(activeModalArtwork.id)}/comments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ author, text })
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || 'Failed to post comment');
+        }
+
+        commentTextInput.value = '';
+        showToast('Comment posted! 💬', '💬');
+
+        await loadArtworkComments(activeModalArtwork.id);
+
+        const card = document.querySelector(`.art-card[data-id="${activeModalArtwork.id}"]`);
+        if (card) {
+          const commentCounter = card.querySelector('.card-comment-count');
+          if (commentCounter) {
+            const currentCount = parseInt(commentCounter.textContent.replace(/[^\d]/g, ''), 10) || 0;
+            commentCounter.textContent = `💬 ${currentCount + 1}`;
+          }
+        }
+
+        loadCommunityStats();
+      } catch (err) {
+        alert(err.message || 'Error posting comment');
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (btnText) btnText.textContent = '💬 Post Comment';
+        if (btnSpinner) btnSpinner.classList.add('hidden');
+      }
+    });
   }
 
   // Lightbox carousel navigation

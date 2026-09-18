@@ -2,9 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import {
   Artwork,
+  ArtworkComment,
   ArtworkQueryOptions,
   ArtworkStats,
   CreateArtworkDto,
+  CreateCommentDto,
   PaginatedArtworks,
   RawArtworkRecord
 } from '../types/artwork';
@@ -69,6 +71,25 @@ export class ArtworkStorageService {
             ? item.tags.filter((t: string): boolean => typeof t === 'string' && t.trim().length > 0)
             : [];
 
+          const comments: ArtworkComment[] = [];
+          if (Array.isArray(item.comments)) {
+            for (const c of item.comments) {
+              if (
+                typeof c.id === 'string' &&
+                typeof c.author === 'string' &&
+                typeof c.text === 'string' &&
+                typeof c.createdAt === 'string'
+              ) {
+                comments.push({
+                  id: c.id,
+                  author: c.author,
+                  text: c.text,
+                  createdAt: c.createdAt
+                });
+              }
+            }
+          }
+
           validArtworks.push({
             id: item.id,
             title: item.title,
@@ -78,6 +99,7 @@ export class ArtworkStorageService {
             tags,
             imageUrl: item.imageUrl,
             likes,
+            comments,
             createdAt: item.createdAt
           });
         }
@@ -188,6 +210,7 @@ export class ArtworkStorageService {
       tags,
       imageUrl: `/uploads/${filename}`,
       likes: 0,
+      comments: [],
       createdAt: new Date().toISOString()
     };
 
@@ -259,15 +282,67 @@ export class ArtworkStorageService {
     return true;
   }
 
+  public async addComment(id: string, dto: CreateCommentDto): Promise<ArtworkComment | null> {
+    return new Promise<ArtworkComment | null>((resolve, reject): void => {
+      this.writeLock = this.writeLock
+        .then(async (): Promise<void> => {
+          try {
+            const comment: ArtworkComment | null = await this.performAddComment(id, dto);
+            resolve(comment);
+          } catch (error) {
+            reject(error);
+          }
+        })
+        .catch((error): void => {
+          reject(error);
+        });
+    });
+  }
+
+  private async performAddComment(id: string, dto: CreateCommentDto): Promise<ArtworkComment | null> {
+    const artworks: Artwork[] = await this.getAll();
+    const index: number = artworks.findIndex((art: Artwork): boolean => art.id === id);
+    if (index === -1) {
+      return null;
+    }
+
+    const uniqueCommentId: string = 'cmt-' + Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
+    const newComment: ArtworkComment = {
+      id: uniqueCommentId,
+      author: dto.author.trim(),
+      text: dto.text.trim(),
+      createdAt: new Date().toISOString()
+    };
+
+    if (!Array.isArray(artworks[index].comments)) {
+      artworks[index].comments = [];
+    }
+    artworks[index].comments.push(newComment);
+
+    await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
+    this.cachedArtworks = [...artworks];
+    return newComment;
+  }
+
+  public async getComments(id: string): Promise<ArtworkComment[] | null> {
+    const artwork: Artwork | null = await this.getById(id);
+    if (!artwork) {
+      return null;
+    }
+    return [...(artwork.comments || [])];
+  }
+
   public async getStats(): Promise<ArtworkStats> {
     const artworks: Artwork[] = await this.getAll();
     const totalArtworks: number = artworks.length;
     let totalLikes: number = 0;
+    let totalComments: number = 0;
     const artistsSet: Set<string> = new Set<string>();
     const categoryCounts: Record<string, number> = {};
 
     for (const art of artworks) {
       totalLikes += art.likes;
+      totalComments += Array.isArray(art.comments) ? art.comments.length : 0;
       const cleanAuthor: string = art.author.trim();
       if (cleanAuthor.length > 0) {
         artistsSet.add(cleanAuthor.toLowerCase());
@@ -280,6 +355,7 @@ export class ArtworkStorageService {
       totalArtworks,
       totalLikes,
       totalArtists: artistsSet.size,
+      totalComments,
       categoryCounts
     };
   }

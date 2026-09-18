@@ -53,6 +53,11 @@
             <span class="stat-number" id="stat-total-artists">0</span>
             <span class="stat-label">Artists</span>
           </div>
+          <div class="stat-pill">
+            <span class="stat-icon">💬</span>
+            <span class="stat-number" id="stat-total-comments">0</span>
+            <span class="stat-label">Comments</span>
+          </div>
         </div>
       </div>
     </section>
@@ -220,6 +225,7 @@
           <button type="button" class="pill-btn" data-category="3D">3D Render</button>
           <button type="button" class="pill-btn" data-category="Traditional">Traditional</button>
           <button type="button" class="pill-btn" data-category="Anime">Anime</button>
+          <button type="button" class="pill-btn" data-category="favorites">❤️ Favorites</button>
         </div>
       </div>
 
@@ -273,6 +279,31 @@
         </div>
         <p id="lightbox-desc" class="lightbox-desc"></p>
         <div id="lightbox-tags" class="card-tags"></div>
+        
+        <!-- Comments & Feedback Section -->
+        <div class="lightbox-comments-section">
+          <div class="comments-header">
+            <h4>💬 Feedback &amp; Critiques (<span id="lightbox-comments-count">0</span>)</h4>
+          </div>
+          <div id="lightbox-comments-list" class="comments-list">
+            <!-- Dynamically injected -->
+          </div>
+          <form id="lightbox-comment-form" class="comment-form">
+            <div class="comment-input-group">
+              <input type="text" id="comment-author-input" class="comment-input" placeholder="Your name / artist handle..." maxlength="60" required>
+            </div>
+            <div class="comment-input-group">
+              <textarea id="comment-text-input" class="comment-input" placeholder="Share your thoughts or critique..." rows="2" maxlength="500" required></textarea>
+            </div>
+            <div class="comment-form-actions">
+              <button type="submit" id="comment-submit-btn" class="btn btn-primary btn-sm">
+                <span class="comment-btn-text">💬 Post Comment</span>
+                <span class="comment-btn-spinner btn-spinner hidden"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+
         <div class="lightbox-footer">
           <span id="lightbox-date" class="lightbox-date"></span>
           <div class="lightbox-actions">

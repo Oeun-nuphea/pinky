@@ -879,15 +879,18 @@ textarea:focus,
 
 .lightbox-details-pane {
   padding: 2rem;
-  width: 360px;
+  width: 400px;
   display: flex;
   flex-direction: column;
   background: var(--bg-card);
+  overflow-y: auto;
+  max-height: 90vh;
 }
 
 @media (max-width: 800px) {
   .lightbox-details-pane {
     width: 100%;
+    max-height: none;
   }
 }
 
@@ -936,8 +939,109 @@ textarea:focus,
   font-size: 0.925rem;
   color: #475569;
   line-height: 1.6;
-  margin-bottom: 1.5rem;
-  flex: 1;
+  margin-bottom: 1.25rem;
+}
+
+[data-theme="dark"] .lightbox-desc {
+  color: #94a3b8;
+}
+
+/* Lightbox Comments & Critiques */
+.lightbox-comments-section {
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.comments-header h4 {
+  font-size: 0.925rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.75rem;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
+  padding-right: 0.25rem;
+}
+
+.comment-item {
+  background: var(--bg-subtle);
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.comment-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.comment-author {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 0.8rem;
+}
+
+.comment-time {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.comment-text {
+  color: var(--text-main);
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.comments-empty {
+  font-size: 0.825rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 0.75rem 0;
+}
+
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comment-input-group {
+  width: 100%;
+}
+
+.comment-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  background: var(--bg-input);
+  color: var(--text-main);
+  font-family: inherit;
+  transition: var(--transition);
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.15);
+}
+
+.comment-form-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .lightbox-footer {

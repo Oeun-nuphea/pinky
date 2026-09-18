@@ -5,9 +5,11 @@ import { ArtworkStorageService } from '../services/storage';
 import {
   ApiResponse,
   Artwork,
+  ArtworkComment,
   ArtworkQueryOptions,
   ArtworkStats,
   CreateArtworkDto,
+  CreateCommentDto,
   PaginatedArtworks
 } from '../types/artwork';
 
@@ -17,6 +19,11 @@ interface ArtworkBody {
   description?: string;
   category?: string;
   tags?: string;
+}
+
+interface CommentBody {
+  author?: string;
+  text?: string;
 }
 
 async function safeDeleteFile(filePath: string): Promise<void> {
@@ -137,6 +144,76 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
       res.status(200).json({ success: true, data: updatedArtwork });
     } catch (error) {
       const errorMessage: string = error instanceof Error ? error.message : 'Failed to like artwork';
+      res.status(500).json({ success: false, error: errorMessage });
+    }
+  });
+
+  // GET /api/artworks/:id/comments
+  router.get('/:id/comments', async (req: Request, res: Response<ApiResponse<ArtworkComment[]>>): Promise<void> => {
+    try {
+      const artworkId: string = req.params.id;
+      if (!artworkId || artworkId.trim().length === 0) {
+        res.status(400).json({ success: false, error: 'Artwork ID is required.' });
+        return;
+      }
+
+      const comments: ArtworkComment[] | null = await storageService.getComments(artworkId);
+      if (!comments) {
+        res.status(404).json({ success: false, error: 'Artwork not found.' });
+        return;
+      }
+
+      res.status(200).json({ success: true, data: comments });
+    } catch (error) {
+      const errorMessage: string = error instanceof Error ? error.message : 'Failed to retrieve comments';
+      res.status(500).json({ success: false, error: errorMessage });
+    }
+  });
+
+  // POST /api/artworks/:id/comments
+  router.post('/:id/comments', async (req: Request, res: Response<ApiResponse<ArtworkComment>>): Promise<void> => {
+    try {
+      const artworkId: string = req.params.id;
+      if (!artworkId || artworkId.trim().length === 0) {
+        res.status(400).json({ success: false, error: 'Artwork ID is required.' });
+        return;
+      }
+
+      const body: CommentBody = req.body;
+      const author: string = typeof body.author === 'string' ? body.author.trim() : '';
+      const text: string = typeof body.text === 'string' ? body.text.trim() : '';
+
+      if (!author) {
+        res.status(400).json({ success: false, error: 'Comment author name is required.' });
+        return;
+      }
+
+      if (author.length > 60) {
+        res.status(400).json({ success: false, error: 'Author name cannot exceed 60 characters.' });
+        return;
+      }
+
+      if (!text) {
+        res.status(400).json({ success: false, error: 'Comment text cannot be empty.' });
+        return;
+      }
+
+      if (text.length > 500) {
+        res.status(400).json({ success: false, error: 'Comment text cannot exceed 500 characters.' });
+        return;
+      }
+
+      const commentDto: CreateCommentDto = { author, text };
+      const createdComment: ArtworkComment | null = await storageService.addComment(artworkId, commentDto);
+
+      if (!createdComment) {
+        res.status(404).json({ success: false, error: 'Artwork not found.' });
+        return;
+      }
+
+      res.status(201).json({ success: true, data: createdComment });
+    } catch (error) {
+      const errorMessage: string = error instanceof Error ? error.message : 'Failed to post comment';
       res.status(500).json({ success: false, error: errorMessage });
     }
   });
