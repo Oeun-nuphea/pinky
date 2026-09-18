@@ -60,7 +60,13 @@ app.use('/api/artworks', createArtworkRouter(storageService, upload));
 
 // Global error handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
-  res.status(500).json({
+  if (res.headersSent) {
+    _next(err);
+    return;
+  }
+  const isClientError: boolean = err instanceof multer.MulterError || err.message.includes('Invalid file type');
+  const statusCode: number = isClientError ? 400 : 500;
+  res.status(statusCode).json({
     success: false,
     error: err.message || 'Internal Server Error'
   });
