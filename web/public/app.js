@@ -634,6 +634,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  window.addEventListener('hashchange', () => {
+    if (window.location.hash.startsWith('#art-')) {
+      checkDirectDeepLink();
+    } else if (!lightboxModal.classList.contains('hidden')) {
+      closeLightbox();
+    }
+  });
+
   // Initial load
   loadArtworks().then(() => {
     checkDirectDeepLink();

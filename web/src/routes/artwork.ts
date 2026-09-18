@@ -144,7 +144,10 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         
         let tags: string[] = [];
         if (typeof body.tags === 'string' && body.tags.trim().length > 0) {
-          tags = body.tags.split(',').map((t: string): string => t.trim()).filter((t: string): boolean => t.length > 0);
+          tags = body.tags
+            .split(',')
+            .map((t: string): string => t.trim().replace(/^#+/, ''))
+            .filter((t: string): boolean => t.length > 0);
         }
 
         if (!title) {
