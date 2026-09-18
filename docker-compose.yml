@@ -1,0 +1,15 @@
+services:
+  pinky-web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: pinky-art-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web/data:/app/data
+      - ./web/uploads:/app/uploads
+    environment:
+      - PORT=3000
+      - NODE_ENV=production

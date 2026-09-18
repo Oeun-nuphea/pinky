@@ -54,6 +54,15 @@ const upload: multer.Multer = multer({
 });
 
 app.use(cors());
+
+// Security headers
+app.use((_req: Request, res: Response, next: NextFunction): void => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

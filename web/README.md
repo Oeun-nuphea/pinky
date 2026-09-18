@@ -64,6 +64,12 @@ npm run build
 npm start
 ```
 
+### 6. Run with Docker Compose
+To run the containerized application:
+```bash
+docker compose up --build
+```
+
 ---
 
 ## REST API Reference
