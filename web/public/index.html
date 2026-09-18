@@ -3,32 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinky Artwork Community</title>
+  <title>Pinky Artwork Community &bull; Share &amp; Discover Art</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+  <!-- Global Header -->
   <header class="app-header">
     <div class="header-container">
       <div class="brand">
-        <span class="brand-icon">🐷</span>
+        <span class="brand-avatar">🐷</span>
         <div class="brand-text">
           <h1>Pinky Art Gallery</h1>
-          <p class="subtitle">Share your creativity with the community</p>
+          <span class="brand-badge">Community Edition</span>
         </div>
       </div>
-      <a href="#upload-section" class="btn btn-primary btn-sm">Post Artwork</a>
+      <div class="header-actions">
+        <a href="#upload-section" class="btn btn-primary">
+          <span>✨ Post Artwork</span>
+        </a>
+      </div>
     </div>
   </header>
 
   <main class="main-container">
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+      <div class="hero-content">
+        <h2>Showcase Your Imagination</h2>
+        <p>A community space for creators to publish digital illustrations, pixel art, 3D renders, and sketches.</p>
+      </div>
+    </section>
+
     <!-- Upload Section -->
     <section id="upload-section" class="card upload-card">
       <div class="card-header">
-        <h2>🎨 Post Your Artwork</h2>
-        <p>Upload your digital art, drawings, or screenshots</p>
+        <div class="card-header-icon">🎨</div>
+        <div>
+          <h2>Post Your Artwork</h2>
+          <p>Share your creative piece with fellow artists and art enthusiasts</p>
+        </div>
       </div>
 
       <div id="feedback-message" class="alert hidden" role="alert"></div>
@@ -36,19 +52,25 @@
       <form id="artwork-form" novalidate>
         <div class="form-grid">
           <div class="form-group">
-            <label for="title-input">Artwork Title <span class="required">*</span></label>
+            <div class="label-row">
+              <label for="title-input">Artwork Title <span class="required">*</span></label>
+              <span class="char-count" id="title-char-count">0/100</span>
+            </div>
             <input 
               type="text" 
               id="title-input" 
               name="title" 
-              placeholder="e.g. Sunset over Pink Hills" 
+              placeholder="e.g. Neon Cyber Piglet" 
               required 
               maxlength="100"
             >
           </div>
 
           <div class="form-group">
-            <label for="author-input">Artist / Author <span class="required">*</span></label>
+            <div class="label-row">
+              <label for="author-input">Artist Name <span class="required">*</span></label>
+              <span class="char-count" id="author-char-count">0/60</span>
+            </div>
             <input 
               type="text" 
               id="author-input" 
@@ -60,19 +82,47 @@
           </div>
         </div>
 
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="category-select">Category</label>
+            <select id="category-select" name="category" class="custom-select">
+              <option value="Digital">Digital Art</option>
+              <option value="Pixel Art">Pixel Art</option>
+              <option value="Illustration">Illustration</option>
+              <option value="3D">3D Render</option>
+              <option value="Traditional">Traditional / Sketch</option>
+              <option value="Anime">Anime / Manga</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="tags-input">Tags <span class="optional">(comma separated)</span></label>
+            <input 
+              type="text" 
+              id="tags-input" 
+              name="tags" 
+              placeholder="e.g. cyberpunk, fantasy, cute, sunset"
+              maxlength="100"
+            >
+          </div>
+        </div>
+
         <div class="form-group">
-          <label for="description-input">Description <span class="optional">(optional)</span></label>
+          <div class="label-row">
+            <label for="description-input">Description <span class="optional">(optional)</span></label>
+            <span class="char-count" id="desc-char-count">0/500</span>
+          </div>
           <textarea 
             id="description-input" 
             name="description" 
             rows="3" 
-            placeholder="Tell us about the inspiration, medium, or tools used..."
+            placeholder="Tell us about the inspiration, tools, or process behind this piece..."
             maxlength="500"
           ></textarea>
         </div>
 
         <div class="form-group">
-          <label>Artwork Image <span class="required">*</span></label>
+          <label>Artwork File <span class="required">*</span></label>
           <div class="drop-zone" id="drop-zone">
             <input 
               type="file" 
@@ -82,20 +132,26 @@
               required
             >
             <div class="drop-zone-prompt" id="drop-zone-prompt">
-              <span class="upload-icon">📁</span>
+              <span class="upload-icon">🖼️</span>
               <p><strong>Click to browse</strong> or drag &amp; drop an image here</p>
               <span class="file-hint">PNG, JPG, GIF, WEBP, or SVG up to 10MB</span>
             </div>
             <div class="preview-container hidden" id="preview-container">
-              <img id="image-preview" src="" alt="Selected artwork preview">
-              <button type="button" class="btn btn-secondary btn-sm remove-preview" id="btn-remove-file">Change Image</button>
+              <div class="preview-img-wrapper">
+                <img id="image-preview" src="" alt="Selected artwork preview">
+              </div>
+              <div class="preview-meta">
+                <span id="preview-filename">filename.png</span>
+                <span id="preview-filesize" class="preview-size">0 KB</span>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-remove-file">Remove / Replace</button>
             </div>
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="submit" id="submit-btn" class="btn btn-primary">
-            <span class="btn-text">Publish Artwork</span>
+          <button type="submit" id="submit-btn" class="btn btn-primary btn-lg">
+            <span class="btn-text">🚀 Publish Artwork</span>
             <span class="btn-spinner hidden"></span>
           </button>
         </div>
@@ -104,47 +160,112 @@
 
     <!-- Gallery Section -->
     <section class="gallery-section">
-      <div class="gallery-header">
-        <div>
-          <h2>Community Gallery</h2>
-          <span class="counter-badge" id="artwork-count">0 artworks</span>
+      <!-- Gallery Controls -->
+      <div class="gallery-controls-card">
+        <div class="controls-top">
+          <div class="gallery-title-wrapper">
+            <h2>Community Gallery</h2>
+            <span class="counter-badge" id="artwork-count">0 artworks</span>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input 
+              type="text" 
+              id="search-input" 
+              placeholder="Search by title, artist, or tag..." 
+              autocomplete="off"
+            >
+            <button type="button" id="search-clear-btn" class="clear-btn hidden" aria-label="Clear search">&times;</button>
+          </div>
+
+          <!-- Sort Select -->
+          <div class="sort-box">
+            <label for="sort-select">Sort by:</label>
+            <select id="sort-select" class="custom-select custom-select-sm">
+              <option value="newest">Newest First</option>
+              <option value="popular">Most Liked ❤️</option>
+              <option value="oldest">Oldest First</option>
+            </select>
+          </div>
         </div>
-        <button id="refresh-btn" class="btn btn-secondary btn-sm" title="Refresh gallery">
-          🔄 Refresh
-        </button>
+
+        <!-- Category Filter Pills -->
+        <div class="category-pills" id="category-pills">
+          <button type="button" class="pill-btn active" data-category="all">All Works</button>
+          <button type="button" class="pill-btn" data-category="Digital">Digital</button>
+          <button type="button" class="pill-btn" data-category="Pixel Art">Pixel Art</button>
+          <button type="button" class="pill-btn" data-category="Illustration">Illustration</button>
+          <button type="button" class="pill-btn" data-category="3D">3D Render</button>
+          <button type="button" class="pill-btn" data-category="Traditional">Traditional</button>
+          <button type="button" class="pill-btn" data-category="Anime">Anime</button>
+        </div>
       </div>
 
+      <!-- Loading State -->
       <div id="gallery-loading" class="loading-container hidden">
         <div class="spinner"></div>
-        <p>Loading artworks...</p>
+        <p>Loading community artworks...</p>
       </div>
 
+      <!-- Empty State -->
       <div id="gallery-empty" class="empty-state hidden">
         <span class="empty-icon">🎨</span>
-        <h3>No artworks posted yet</h3>
-        <p>Be the first artist to publish your work!</p>
+        <h3>No artworks found</h3>
+        <p id="empty-state-text">No artworks match your selected filters. Be the first to share your creation!</p>
       </div>
 
+      <!-- Grid of Artwork Cards -->
       <div id="gallery-grid" class="gallery-grid"></div>
+
+      <!-- Pagination -->
+      <div id="pagination-container" class="pagination-bar hidden">
+        <button type="button" id="prev-page-btn" class="btn btn-secondary btn-sm" disabled>&larr; Previous</button>
+        <span id="page-indicator" class="page-indicator">Page 1 of 1</span>
+        <button type="button" id="next-page-btn" class="btn btn-secondary btn-sm" disabled>Next &rarr;</button>
+      </div>
     </section>
   </main>
 
-  <!-- Image Lightbox Modal -->
+  <!-- Interactive Lightbox Modal -->
   <div id="lightbox-modal" class="lightbox-modal hidden" role="dialog" aria-modal="true">
     <div class="lightbox-overlay" id="lightbox-overlay"></div>
     <div class="lightbox-content">
       <button class="lightbox-close" id="lightbox-close" aria-label="Close image">&times;</button>
-      <img id="lightbox-img" src="" alt="">
-      <div class="lightbox-caption">
-        <h3 id="lightbox-title"></h3>
-        <p id="lightbox-author"></p>
+      <div class="lightbox-img-pane">
+        <img id="lightbox-img" src="" alt="">
+      </div>
+      <div class="lightbox-details-pane">
+        <div class="lightbox-details-header">
+          <div>
+            <span id="lightbox-category" class="category-badge">Digital</span>
+            <h3 id="lightbox-title"></h3>
+            <p id="lightbox-author" class="lightbox-author"></p>
+          </div>
+          <button type="button" class="btn-like-modal" id="lightbox-like-btn" title="Like this artwork">
+            <span class="heart-icon">❤️</span>
+            <span id="lightbox-likes-count">0</span>
+          </button>
+        </div>
         <p id="lightbox-desc" class="lightbox-desc"></p>
+        <div id="lightbox-tags" class="card-tags"></div>
+        <div class="lightbox-footer">
+          <span id="lightbox-date" class="lightbox-date"></span>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Global Footer -->
   <footer class="app-footer">
-    <p>🐷 Pinky Project &bull; Built with Node.js, Express &amp; TypeScript</p>
+    <div class="footer-inner">
+      <p>🐷 <strong>Pinky Art Community</strong> &bull; Crafted with Node.js, Express &amp; TypeScript</p>
+      <div class="footer-links">
+        <a href="/api/health" target="_blank" rel="noopener">Health Status</a>
+        <a href="#upload-section">Publish Art</a>
+      </div>
+    </div>
   </footer>
 
   <script src="app.js"></script>

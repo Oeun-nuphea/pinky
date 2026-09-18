@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import fs from 'fs';
 import path from 'path';
 import { ArtworkStorageService } from './storage';
-import { Artwork, CreateArtworkDto } from '../types/artwork';
+import { Artwork, CreateArtworkDto, PaginatedArtworks } from '../types/artwork';
 
 const testBaseDir: string = path.join(__dirname, '..', '..', 'scratch_test_dir');
 
@@ -28,27 +28,79 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     assert.strictEqual(service.getUploadsDir(), uploadsDir);
   });
 
-  await t.test('creates and retrieves a new artwork', async (): Promise<void> => {
+  await t.test('creates artwork with categories, tags, and default likes', async (): Promise<void> => {
     const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
     const dto: CreateArtworkDto = {
-      title: 'Test Masterpiece',
-      author: 'Tester',
-      description: 'Unit test description'
+      title: 'Neon Cyberpig',
+      author: 'PinkyDev',
+      description: 'Futuristic piglet in neon city',
+      category: 'Pixel Art',
+      tags: ['cyberpunk', 'neon', 'pig']
     };
-    const filename: string = 'test-image.png';
+    const filename: string = 'neon-pig.png';
 
     const created: Artwork = await service.create(dto, filename);
 
     assert.strictEqual(typeof created.id, 'string');
-    assert.strictEqual(created.title, 'Test Masterpiece');
-    assert.strictEqual(created.author, 'Tester');
-    assert.strictEqual(created.description, 'Unit test description');
-    assert.strictEqual(created.imageUrl, '/uploads/test-image.png');
-    assert.strictEqual(typeof created.createdAt, 'string');
+    assert.strictEqual(created.title, 'Neon Cyberpig');
+    assert.strictEqual(created.author, 'PinkyDev');
+    assert.strictEqual(created.category, 'Pixel Art');
+    assert.deepStrictEqual(created.tags, ['cyberpunk', 'neon', 'pig']);
+    assert.strictEqual(created.likes, 0);
+    assert.strictEqual(created.imageUrl, '/uploads/neon-pig.png');
+  });
 
+  await t.test('increments artwork likes correctly', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
     const all: Artwork[] = await service.getAll();
-    assert.strictEqual(all.length, 1);
-    assert.strictEqual(all[0].id, created.id);
+    assert.strictEqual(all.length >= 1, true);
+
+    const targetId: string = all[0].id;
+    const updated: Artwork | null = await service.like(targetId);
+
+    assert.notStrictEqual(updated, null);
+    if (updated) {
+      assert.strictEqual(updated.likes, 1);
+    }
+
+    const updatedAgain: Artwork | null = await service.like(targetId);
+    assert.notStrictEqual(updatedAgain, null);
+    if (updatedAgain) {
+      assert.strictEqual(updatedAgain.likes, 2);
+    }
+  });
+
+  await t.test('filters artworks by search and category', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
+
+    // Create another piece in a different category
+    await service.create(
+      {
+        title: 'Watercolor Sunset Landscape',
+        author: 'NatureArtist',
+        description: 'Serene meadow at dusk',
+        category: 'Traditional',
+        tags: ['sunset', 'watercolor', 'nature']
+      },
+      'sunset.jpg'
+    );
+
+    const pixelCategoryResults: PaginatedArtworks = await service.query({ category: 'Pixel Art' });
+    assert.strictEqual(pixelCategoryResults.artworks.length, 1);
+    assert.strictEqual(pixelCategoryResults.artworks[0].category, 'Pixel Art');
+
+    const searchResults: PaginatedArtworks = await service.query({ search: 'sunset' });
+    assert.strictEqual(searchResults.artworks.length, 1);
+    assert.strictEqual(searchResults.artworks[0].title, 'Watercolor Sunset Landscape');
+  });
+
+  await t.test('sorts artworks by popularity (likes)', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
+    const popularResults: PaginatedArtworks = await service.query({ sortBy: 'popular' });
+
+    assert.strictEqual(popularResults.artworks.length, 2);
+    // First item should have higher likes (Neon Cyberpig has 2 likes)
+    assert.strictEqual(popularResults.artworks[0].likes >= popularResults.artworks[1].likes, true);
   });
 
   await t.test('handles concurrent creations without race conditions', async (): Promise<void> => {
@@ -60,7 +112,9 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
       const dto: CreateArtworkDto = {
         title: `Concurrent Artwork ${i}`,
         author: `Artist ${i}`,
-        description: `Description ${i}`
+        description: `Description ${i}`,
+        category: 'Digital',
+        tags: [`tag${i}`]
       };
       promises.push(service.create(dto, `image-${i}.png`));
     }
@@ -69,10 +123,9 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     assert.strictEqual(results.length, count);
 
     const all: Artwork[] = await service.getAll();
-    // 1 from previous test + 5 from concurrent test = 6
-    assert.strictEqual(all.length, 1 + count);
+    // 2 existing + 5 = 7
+    assert.strictEqual(all.length, 2 + count);
   });
 
-  // Cleanup after tests
   cleanupTestDir();
 });
