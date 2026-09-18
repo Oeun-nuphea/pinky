@@ -343,6 +343,10 @@ textarea:focus,
   cursor: pointer;
 }
 
+.drop-zone-prompt * {
+  pointer-events: none;
+}
+
 .drop-zone-prompt .upload-icon {
   font-size: 2.5rem;
   display: block;
@@ -362,6 +366,8 @@ textarea:focus,
 }
 
 .preview-container {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1100,6 +1106,13 @@ textarea:focus,
 @media (max-width: 800px) {
   .lightbox-nav-btn {
     display: none;
+  }
+
+  .lightbox-close {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 120;
   }
 }
 

@@ -152,12 +152,20 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         const title: string = typeof body.title === 'string' ? body.title.trim() : '';
         const author: string = typeof body.author === 'string' ? body.author.trim() : '';
         const description: string = typeof body.description === 'string' ? body.description.trim() : '';
-        const category: string = typeof body.category === 'string' && body.category.trim() ? body.category.trim() : 'Digital';
+        const validCategories: string[] = ['Digital', 'Pixel Art', 'Illustration', '3D', 'Traditional', 'Anime'];
+        const rawCategory: string = typeof body.category === 'string' && body.category.trim() ? body.category.trim() : 'Digital';
+        const matchedCategory: string | undefined = validCategories.find(
+          (c: string): boolean => c.toLowerCase() === rawCategory.toLowerCase()
+        );
+        const category: string = matchedCategory || 'Digital';
         
         let tags: string[] = [];
         if (typeof body.tags === 'string' && body.tags.trim().length > 0) {
-          tags = body.tags
-            .split(',')
+          const rawTokens: string[] = body.tags.includes(',')
+            ? body.tags.split(',')
+            : body.tags.split(/\s+/);
+
+          tags = rawTokens
             .map((t: string): string => t.trim().replace(/^#+/, '').slice(0, 30))
             .filter((t: string): boolean => t.length > 0)
             .slice(0, 10);

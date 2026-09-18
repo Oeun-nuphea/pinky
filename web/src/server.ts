@@ -92,11 +92,15 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void =>
     return;
   }
   const errorMessage: string = err instanceof Error ? err.message : typeof err === 'string' ? err : 'Internal Server Error';
+  let userFriendlyMessage: string = errorMessage;
+  if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+    userFriendlyMessage = 'Image file size exceeds the 10MB limit.';
+  }
   const isClientError: boolean = err instanceof multer.MulterError || errorMessage.includes('Invalid file type');
   const statusCode: number = isClientError ? 400 : 500;
   res.status(statusCode).json({
     success: false,
-    error: errorMessage
+    error: userFriendlyMessage
   });
 });
 
