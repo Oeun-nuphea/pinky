@@ -382,10 +382,22 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cardElement) {
           const counter = cardElement.querySelector('.like-counter');
           if (counter) counter.textContent = updated.likes.toString();
+          const heartIcon = cardElement.querySelector('.card-like-btn span:first-child');
+          if (heartIcon) {
+            heartIcon.classList.remove('heart-pop');
+            void heartIcon.offsetWidth;
+            heartIcon.classList.add('heart-pop');
+          }
         }
         if (activeModalArtwork && activeModalArtwork.id === id) {
           activeModalArtwork.likes = updated.likes;
           lightboxLikesCount.textContent = updated.likes.toString();
+          const modalHeart = document.querySelector('#lightbox-like-btn .heart-icon');
+          if (modalHeart) {
+            modalHeart.classList.remove('heart-pop');
+            void modalHeart.offsetWidth;
+            modalHeart.classList.add('heart-pop');
+          }
         }
         addFavorite(id);
         showToast('Artwork liked! ❤️', '❤️');
