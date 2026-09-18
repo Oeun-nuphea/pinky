@@ -7,6 +7,9 @@
   --text-muted: #64748b;
   --bg-page: #f8fafc;
   --bg-card: #ffffff;
+  --bg-subtle: #f1f5f9;
+  --bg-subtle-hover: #e2e8f0;
+  --bg-input: #ffffff;
   --border-color: #e2e8f0;
   --border-focus: #f43f5e;
   --success: #10b981;
@@ -28,7 +31,10 @@
   --text-muted: #94a3b8;
   --bg-page: #0b0f19;
   --bg-card: #131b2e;
-  --border-color: #1e293b;
+  --bg-subtle: #1e293b;
+  --bg-subtle-hover: #334155;
+  --bg-input: #1a233b;
+  --border-color: #27354f;
   --border-focus: #f43f5e;
   --primary-light: rgba(244, 63, 94, 0.15);
   --primary-border: rgba(244, 63, 94, 0.3);
@@ -234,7 +240,7 @@ textarea,
   border-radius: var(--radius-sm);
   font-size: 0.925rem;
   color: var(--text-main);
-  background: #fff;
+  background: var(--bg-input);
   transition: var(--transition);
   font-family: inherit;
 }
@@ -259,7 +265,7 @@ textarea:focus,
   padding: 1.75rem;
   text-align: center;
   position: relative;
-  background-color: #fafbfc;
+  background-color: var(--bg-subtle);
   transition: var(--transition);
   cursor: pointer;
 }
@@ -371,13 +377,13 @@ textarea:focus,
 }
 
 .btn-secondary {
-  background-color: #f1f5f9;
+  background-color: var(--bg-subtle);
   color: var(--text-main);
   border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #e2e8f0;
+  background-color: var(--bg-subtle-hover);
 }
 
 .btn:disabled {
@@ -518,7 +524,7 @@ textarea:focus,
 }
 
 .pill-btn {
-  background: #f8fafc;
+  background: var(--bg-subtle);
   border: 1px solid var(--border-color);
   color: var(--text-muted);
   font-size: 0.85rem;
@@ -571,7 +577,7 @@ textarea:focus,
   position: relative;
   width: 100%;
   padding-top: 66%;
-  background-color: #f1f5f9;
+  background-color: var(--bg-subtle);
   overflow: hidden;
   cursor: pointer;
 }
@@ -671,11 +677,18 @@ textarea:focus,
 
 .tag-badge {
   font-size: 0.725rem;
-  background: #f1f5f9;
+  background: var(--bg-subtle);
   color: var(--text-muted);
   padding: 0.15rem 0.5rem;
   border-radius: var(--radius-full);
   font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.tag-badge:hover {
+  background: var(--primary-light);
+  color: var(--primary);
 }
 
 .art-card-footer {
@@ -768,7 +781,8 @@ textarea:focus,
   z-index: 101;
   max-width: 92vw;
   max-height: 90vh;
-  background: #fff;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   overflow: hidden;
   display: flex;
@@ -811,7 +825,7 @@ textarea:focus,
   width: 360px;
   display: flex;
   flex-direction: column;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 @media (max-width: 800px) {
@@ -991,6 +1005,210 @@ textarea:focus,
 .theme-toggle-btn {
   border-radius: var(--radius-full);
   padding: 0.45rem 0.65rem;
+}
+
+/* Lightbox Navigation */
+.lightbox-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(15, 23, 42, 0.6);
+  color: #fff;
+  border: none;
+  font-size: 1.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 105;
+  transition: var(--transition);
+}
+
+.lightbox-prev-btn {
+  left: 1rem;
+}
+
+.lightbox-next-btn {
+  right: 1rem;
+}
+
+.lightbox-nav-btn:hover {
+  background: var(--primary);
+  transform: translateY(-50%) scale(1.1);
+}
+
+@media (max-width: 800px) {
+  .lightbox-nav-btn {
+    display: none;
+  }
+}
+
+/* Author Avatar Row */
+.author-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.6rem;
+}
+
+.author-avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f43f5e, #a855f7);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.author-name-text {
+  font-size: 0.85rem;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Skeleton Loading Cards */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1.75rem;
+}
+
+.skeleton-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 380px;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s infinite;
+}
+
+.skeleton-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.5s infinite;
+}
+
+.skeleton-line.title {
+  width: 70%;
+  height: 18px;
+}
+
+.skeleton-line.author {
+  width: 40%;
+}
+
+.skeleton-line.desc {
+  width: 90%;
+}
+
+[data-theme="dark"] .skeleton-img,
+[data-theme="dark"] .skeleton-line {
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+  background-size: 200% 100%;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Floating Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 200;
+}
+
+.toast {
+  background: #0f172a;
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: toast-in 0.25s ease-out;
+}
+
+[data-theme="dark"] .toast {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Back to Top Button */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-size: 1.25rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.4);
+  cursor: pointer;
+  z-index: 90;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-to-top-btn:hover {
+  transform: translateY(-3px) scale(1.05);
+  background: var(--primary-hover);
 }
 
 .hidden {

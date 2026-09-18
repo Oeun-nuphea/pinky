@@ -217,6 +217,7 @@
         <span class="empty-icon">🎨</span>
         <h3>No artworks found</h3>
         <p id="empty-state-text">No artworks match your selected filters. Be the first to share your creation!</p>
+        <button type="button" class="btn btn-secondary btn-sm" id="empty-reset-btn" style="margin-top: 1rem;">🔄 Reset Filters</button>
       </div>
 
       <!-- Grid of Artwork Cards -->
@@ -236,6 +237,8 @@
     <div class="lightbox-overlay" id="lightbox-overlay"></div>
     <div class="lightbox-content">
       <button class="lightbox-close" id="lightbox-close" aria-label="Close image">&times;</button>
+      <button type="button" class="lightbox-nav-btn lightbox-prev-btn" id="lightbox-prev-btn" aria-label="Previous artwork">&#10094;</button>
+      <button type="button" class="lightbox-nav-btn lightbox-next-btn" id="lightbox-next-btn" aria-label="Next artwork">&#10095;</button>
       <div class="lightbox-img-pane">
         <img id="lightbox-img" src="" alt="">
       </div>
@@ -277,6 +280,12 @@
       </div>
     </div>
   </div>
+
+  <!-- Floating Toast Notifications Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Floating Back to Top Button -->
+  <button type="button" id="back-to-top-btn" class="back-to-top-btn hidden" aria-label="Back to top">↑</button>
 
   <!-- Global Footer -->
   <footer class="app-footer">

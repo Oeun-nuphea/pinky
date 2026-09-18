@@ -59,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const lightboxShareBtn = document.getElementById('lightbox-share-btn');
   const lightboxDownloadLink = document.getElementById('lightbox-download-link');
   const lightboxDeleteBtn = document.getElementById('lightbox-delete-btn');
+  const lightboxPrevBtn = document.getElementById('lightbox-prev-btn');
+  const lightboxNextBtn = document.getElementById('lightbox-next-btn');
   const lightboxClose = document.getElementById('lightbox-close');
   const lightboxOverlay = document.getElementById('lightbox-overlay');
 
@@ -68,6 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const deleteCancelBtn = document.getElementById('delete-cancel-btn');
   const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
 
+  // UI elements
+  const emptyResetBtn = document.getElementById('empty-reset-btn');
+  const toastContainer = document.getElementById('toast-container');
+  const backToTopBtn = document.getElementById('back-to-top-btn');
+
   // State
   let currentFile = null;
   let activeCategory = 'all';
@@ -76,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentPage = 1;
   let activeModalArtwork = null;
   let searchDebounceTimer = null;
+  let currentArtworksList = [];
 
   // Character counter listeners
   titleInput.addEventListener('input', () => {
@@ -92,11 +100,59 @@ document.addEventListener('DOMContentLoaded', () => {
     descCharCount.textContent = `${descriptionInput.value.length}/500`;
   });
 
+  // Toast notifications
+  function showToast(message, icon = '✨') {
+    if (!toastContainer) return;
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `<span>${icon}</span><span>${escapeHtml(message)}</span>`;
+    toastContainer.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(10px)';
+      toast.style.transition = 'all 0.3s ease';
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }, 3000);
+  }
+
+  // Skeleton loading placeholders
+  function renderSkeletons(count = 6) {
+    galleryGrid.innerHTML = Array.from({ length: count }, () => `
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line author"></div>
+          <div class="skeleton-line desc"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Tag filter helper
+  function filterByTag(tag) {
+    const cleanTag = tag.replace(/^#+/, '').trim();
+    if (!cleanTag) return;
+    searchInput.value = cleanTag;
+    searchClearBtn.classList.remove('hidden');
+    searchQuery = cleanTag;
+    currentPage = 1;
+    if (activeModalArtwork) {
+      closeLightbox();
+    }
+    loadArtworks();
+    galleryGrid.scrollIntoView({ behavior: 'smooth' });
+    showToast(`Filtering by #${cleanTag}`, '🏷️');
+  }
+
   // Fetch and display artworks
   async function loadArtworks() {
     galleryLoading.classList.remove('hidden');
     galleryEmpty.classList.add('hidden');
-    galleryGrid.innerHTML = '';
+    renderSkeletons(6);
 
     try {
       const params = new URLSearchParams({
@@ -120,7 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (result.success && result.data) {
         const paginated = result.data;
-        renderGallery(paginated.artworks || []);
+        currentArtworksList = paginated.artworks || [];
+        renderGallery(currentArtworksList);
         renderPagination(paginated);
       } else {
         throw new Error(result.error || 'Failed to load artworks');
@@ -160,8 +217,10 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       const tagsHtml = (art.tags || [])
-        .map((t) => `<span class="tag-badge">#${escapeHtml(t)}</span>`)
+        .map((t) => `<span class="tag-badge" title="Filter by #${escapeHtml(t)}">#${escapeHtml(t)}</span>`)
         .join('');
+
+      const firstLetter = (art.author || 'A').trim().charAt(0).toUpperCase() || 'A';
 
       card.innerHTML = `
         <div class="art-card-img-wrapper" title="Click to inspect full artwork">
@@ -173,8 +232,11 @@ document.addEventListener('DOMContentLoaded', () => {
           <img src="${escapeHtml(art.imageUrl)}" alt="${escapeHtml(art.title)}" loading="lazy">
         </div>
         <div class="art-card-body">
+          <div class="author-row">
+            <span class="author-avatar">${escapeHtml(firstLetter)}</span>
+            <span class="author-name-text">by ${escapeHtml(art.author)}</span>
+          </div>
           <h3 class="art-card-title">${escapeHtml(art.title)}</h3>
-          <p class="art-card-author">by ${escapeHtml(art.author)}</p>
           <p class="art-card-desc">${art.description ? escapeHtml(art.description) : '<em>No description provided</em>'}</p>
           ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ''}
           <div class="art-card-footer">
@@ -187,6 +249,15 @@ document.addEventListener('DOMContentLoaded', () => {
       card.querySelector('.art-card-img-wrapper').addEventListener('click', (e) => {
         if (e.target.closest('.card-like-btn')) return;
         openLightbox(art);
+      });
+
+      // Card tags click -> Filter by tag
+      card.querySelectorAll('.tag-badge').forEach((badge) => {
+        badge.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const tag = badge.textContent.replace(/^#+/, '');
+          filterByTag(tag);
+        });
       });
 
       // Like button click
@@ -247,9 +318,12 @@ document.addEventListener('DOMContentLoaded', () => {
           activeModalArtwork.likes = updated.likes;
           lightboxLikesCount.textContent = updated.likes.toString();
         }
+        showToast('Artwork liked! ❤️', '❤️');
       }
     } catch (err) {
       console.error('Error liking artwork:', err);
+    }
+  }
     }
   }
 
@@ -430,6 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       showFeedback('🎉 Masterpiece published successfully!', 'success');
+      showToast('Masterpiece published! 🚀', '🎉');
       form.reset();
       titleCharCount.textContent = '0/100';
       authorCharCount.textContent = '0/60';
@@ -527,8 +602,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (art.tags && art.tags.length > 0) {
       lightboxTags.innerHTML = art.tags
-        .map((t) => `<span class="tag-badge">#${escapeHtml(t)}</span>`)
+        .map((t) => `<span class="tag-badge" title="Filter by #${escapeHtml(t)}">#${escapeHtml(t)}</span>`)
         .join('');
+
+      lightboxTags.querySelectorAll('.tag-badge').forEach((badge) => {
+        badge.addEventListener('click', () => {
+          const tag = badge.textContent.replace(/^#+/, '');
+          filterByTag(tag);
+        });
+      });
+
       lightboxTags.classList.remove('hidden');
     } else {
       lightboxTags.innerHTML = '';
@@ -549,15 +632,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Lightbox carousel navigation
+  function navigateLightbox(direction) {
+    if (!currentArtworksList || currentArtworksList.length <= 1) return;
+    const currentIndex = currentArtworksList.findIndex((a) => a.id === activeModalArtwork?.id);
+    if (currentIndex === -1) return;
+    const newIndex = (currentIndex + direction + currentArtworksList.length) % currentArtworksList.length;
+    openLightbox(currentArtworksList[newIndex]);
+  }
+
+  if (lightboxPrevBtn) {
+    lightboxPrevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateLightbox(-1);
+    });
+  }
+
+  if (lightboxNextBtn) {
+    lightboxNextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      navigateLightbox(1);
+    });
+  }
+
   // Share button
   lightboxShareBtn.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      const originalText = lightboxShareBtn.textContent;
-      lightboxShareBtn.textContent = '✅ Copied!';
-      setTimeout(() => {
-        lightboxShareBtn.textContent = originalText;
-      }, 2000);
+      showToast('Artwork link copied to clipboard!', '🔗');
     } catch {
       prompt('Copy link to artwork:', window.location.href);
     }
@@ -594,6 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
       deleteModal.classList.add('hidden');
       closeLightbox();
       showFeedback('Artwork deleted successfully.', 'success');
+      showToast('Artwork deleted.', '🗑️');
       await loadArtworks();
     } catch (err) {
       alert(err.message || 'Error deleting artwork');
@@ -620,8 +723,51 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (!lightboxModal.classList.contains('hidden')) {
         closeLightbox();
       }
+    } else if (e.key === 'ArrowLeft') {
+      if (!lightboxModal.classList.contains('hidden') && deleteModal.classList.contains('hidden')) {
+        navigateLightbox(-1);
+      }
+    } else if (e.key === 'ArrowRight') {
+      if (!lightboxModal.classList.contains('hidden') && deleteModal.classList.contains('hidden')) {
+        navigateLightbox(1);
+      }
     }
   });
+
+  // Empty state filter reset button
+  if (emptyResetBtn) {
+    emptyResetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchClearBtn.classList.add('hidden');
+      searchQuery = '';
+      activeCategory = 'all';
+      categoryPills.querySelectorAll('.pill-btn').forEach((b) => {
+        if (b.getAttribute('data-category') === 'all') {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+      currentPage = 1;
+      loadArtworks();
+      showToast('Filters reset to All Works', '🔄');
+    });
+  }
+
+  // Floating Back to Top Button
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 350) {
+        backToTopBtn.classList.remove('hidden');
+      } else {
+        backToTopBtn.classList.add('hidden');
+      }
+    });
+
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 
   // Check URL hash on startup for direct deep linking
   async function checkDirectDeepLink() {
