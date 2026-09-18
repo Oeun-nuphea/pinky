@@ -87,6 +87,10 @@ document.addEventListener('DOMContentLoaded', () => {
   let activeModalArtwork = null;
   let searchDebounceTimer = null;
   let currentArtworksList = [];
+  let activeFetchId = 0;
+
+  // Fallback image placeholder
+  const fallbackSvg = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300' fill='%23f1f5f9'><rect width='400' height='300'/><text x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='15' fill='%2394a3b8'>Image Unavailable</text></svg>";
 
   // Character counter listeners
   titleInput.addEventListener('input', () => {
@@ -153,6 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Fetch and display artworks
   async function loadArtworks() {
+    const thisFetchId = ++activeFetchId;
     galleryLoading.classList.remove('hidden');
     galleryEmpty.classList.add('hidden');
     renderSkeletons(6);
@@ -177,6 +182,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const result = await response.json();
 
+      if (thisFetchId !== activeFetchId) return;
+
       if (result.success && result.data) {
         const paginated = result.data;
         currentArtworksList = paginated.artworks || [];
@@ -186,10 +193,13 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(result.error || 'Failed to load artworks');
       }
     } catch (err) {
+      if (thisFetchId !== activeFetchId) return;
       console.error('Error loading artworks:', err);
       galleryGrid.innerHTML = `<p class="alert alert-error">Unable to load artworks. Please check your server status.</p>`;
     } finally {
-      galleryLoading.classList.add('hidden');
+      if (thisFetchId === activeFetchId) {
+        galleryLoading.classList.add('hidden');
+      }
     }
   }
 
@@ -232,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <span>❤️</span>
             <span class="like-counter">${art.likes || 0}</span>
           </button>
-          <img src="${escapeHtml(art.imageUrl)}" alt="${escapeHtml(art.title)}" loading="lazy">
+          <img src="${escapeHtml(art.imageUrl)}" alt="${escapeHtml(art.title)}" loading="lazy" onerror="this.onerror=null;this.src='${fallbackSvg}';">
         </div>
         <div class="art-card-body">
           <div class="author-row">
@@ -581,7 +591,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Theme Switcher
-  const savedTheme = localStorage.getItem('pinky-theme') || 'light';
+  const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const savedTheme = localStorage.getItem('pinky-theme') || (systemPrefersDark ? 'dark' : 'light');
   if (savedTheme === 'dark') {
     document.documentElement.setAttribute('data-theme', 'dark');
     themeIcon.textContent = '☀️';
@@ -606,13 +617,30 @@ document.addEventListener('DOMContentLoaded', () => {
   // Lightbox
   function openLightbox(art) {
     activeModalArtwork = art;
+    lightboxImg.style.opacity = '0';
     lightboxImg.src = art.imageUrl;
+    lightboxImg.onload = () => {
+      lightboxImg.style.opacity = '1';
+    };
+    lightboxImg.onerror = () => {
+      lightboxImg.src = fallbackSvg;
+      lightboxImg.style.opacity = '1';
+    };
     lightboxImg.alt = art.title;
     lightboxCategory.textContent = art.category || 'Digital';
     lightboxTitle.textContent = art.title;
     lightboxAuthor.textContent = `by ${art.author}`;
     lightboxDesc.textContent = art.description || 'No description provided for this artwork.';
     lightboxLikesCount.textContent = (art.likes || 0).toString();
+
+    // Toggle navigation arrows visibility based on list size
+    if (!currentArtworksList || currentArtworksList.length <= 1) {
+      if (lightboxPrevBtn) lightboxPrevBtn.classList.add('hidden');
+      if (lightboxNextBtn) lightboxNextBtn.classList.add('hidden');
+    } else {
+      if (lightboxPrevBtn) lightboxPrevBtn.classList.remove('hidden');
+      if (lightboxNextBtn) lightboxNextBtn.classList.remove('hidden');
+    }
 
     const dateStr = new Date(art.createdAt).toLocaleDateString(undefined, {
       year: 'numeric',
@@ -647,6 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Deep linking: update URL hash
     history.replaceState(null, '', `#art-${art.id}`);
+    document.body.style.overflow = 'hidden';
     lightboxModal.classList.remove('hidden');
   }
 
@@ -654,6 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxModal.classList.add('hidden');
     lightboxImg.src = '';
     activeModalArtwork = null;
+    document.body.style.overflow = '';
     if (window.location.hash.startsWith('#art-')) {
       history.replaceState(null, '', window.location.pathname + window.location.search);
     }
@@ -698,10 +728,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   deleteCancelBtn.addEventListener('click', () => {
+    if (deleteConfirmBtn.disabled) return;
     deleteModal.classList.add('hidden');
   });
 
   deleteOverlay.addEventListener('click', () => {
+    if (deleteConfirmBtn.disabled) return;
     deleteModal.classList.add('hidden');
   });
 
@@ -709,6 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!activeModalArtwork) return;
     const targetId = activeModalArtwork.id;
     deleteConfirmBtn.disabled = true;
+    deleteCancelBtn.disabled = true;
     deleteConfirmBtn.textContent = 'Deleting...';
 
     try {
@@ -730,6 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert(err.message || 'Error deleting artwork');
     } finally {
       deleteConfirmBtn.disabled = false;
+      deleteCancelBtn.disabled = false;
       deleteConfirmBtn.textContent = 'Yes, Delete';
     }
   });

@@ -881,6 +881,7 @@ textarea:focus,
   max-height: 80vh;
   object-fit: contain;
   display: block;
+  transition: opacity 0.2s ease-in-out;
 }
 
 .lightbox-details-pane {
@@ -1216,15 +1217,17 @@ textarea:focus,
 /* Floating Toast Notifications */
 .toast-container {
   position: fixed;
-  bottom: 1.5rem;
+  bottom: 5.5rem;
   right: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   z-index: 200;
+  pointer-events: none;
 }
 
 .toast {
+  pointer-events: auto;
   background: #0f172a;
   color: #fff;
   padding: 0.75rem 1.25rem;
