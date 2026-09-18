@@ -897,12 +897,24 @@ textarea:focus,
 }
 
 .lightbox-img-pane {
-  background: #090d16;
+  background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 450px;
   max-width: 60vw;
+  position: relative;
+}
+
+.lightbox-spinner {
+  position: absolute;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  z-index: 5;
 }
 
 @media (max-width: 800px) {

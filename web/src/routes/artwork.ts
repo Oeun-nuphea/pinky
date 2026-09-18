@@ -45,10 +45,14 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
   // GET /api/artworks with query filtering, sorting, and pagination
   router.get('/', async (req: Request, res: Response<ApiResponse<PaginatedArtworks>>): Promise<void> => {
     try {
-      const page: number = req.query.page ? parseInt(req.query.page as string, 10) : 1;
-      const limit: number = req.query.limit ? parseInt(req.query.limit as string, 10) : 12;
-      const search: string = typeof req.query.search === 'string' ? req.query.search : '';
-      const category: string = typeof req.query.category === 'string' ? req.query.category : '';
+      const rawPage: number = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+      const rawLimit: number = req.query.limit ? parseInt(req.query.limit as string, 10) : 12;
+      const page: number = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+      const limit: number = isNaN(rawLimit) || rawLimit < 1 ? 12 : Math.min(rawLimit, 100);
+      const rawSearch: string = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+      const search: string = rawSearch.slice(0, 100);
+      const rawCategory: string = typeof req.query.category === 'string' ? req.query.category.trim() : '';
+      const category: string = rawCategory.slice(0, 50);
       const sortByRaw: string = typeof req.query.sortBy === 'string' ? req.query.sortBy : 'newest';
 
       const sortBy: SortOption = VALID_SORT_OPTIONS.includes(sortByRaw as SortOption)
@@ -56,8 +60,8 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         : 'newest';
 
       const queryOptions: ArtworkQueryOptions = {
-        page: isNaN(page) ? 1 : page,
-        limit: isNaN(limit) ? 12 : limit,
+        page,
+        limit,
         search,
         category,
         sortBy
@@ -226,6 +230,12 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
       try {
         if (!req.file) {
           res.status(400).json({ success: false, error: 'Artwork image is required.' });
+          return;
+        }
+
+        if (req.file.size === 0) {
+          await safeDeleteFile(req.file.path);
+          res.status(400).json({ success: false, error: 'Artwork image file cannot be empty.' });
           return;
         }
 

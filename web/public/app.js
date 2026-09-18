@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Lightbox elements
   const lightboxModal = document.getElementById('lightbox-modal');
+  const lightboxSpinner = document.getElementById('lightbox-spinner');
   const lightboxImg = document.getElementById('lightbox-img');
   const lightboxCategory = document.getElementById('lightbox-category');
   const lightboxTitle = document.getElementById('lightbox-title');
@@ -687,12 +688,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Lightbox
   function openLightbox(art) {
     activeModalArtwork = art;
+    if (lightboxSpinner) lightboxSpinner.classList.remove('hidden');
     lightboxImg.style.opacity = '0';
     lightboxImg.src = art.imageUrl;
     lightboxImg.onload = () => {
+      if (lightboxSpinner) lightboxSpinner.classList.add('hidden');
       lightboxImg.style.opacity = '1';
     };
     lightboxImg.onerror = () => {
+      if (lightboxSpinner) lightboxSpinner.classList.add('hidden');
       lightboxImg.src = fallbackSvg;
       lightboxImg.style.opacity = '1';
     };
@@ -752,6 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function closeLightbox() {
     lightboxModal.classList.add('hidden');
+    if (lightboxSpinner) lightboxSpinner.classList.add('hidden');
     lightboxImg.src = '';
     activeModalArtwork = null;
     if (lightboxCommentForm) lightboxCommentForm.reset();
@@ -965,11 +970,20 @@ document.addEventListener('DOMContentLoaded', () => {
   lightboxOverlay.addEventListener('click', closeLightbox);
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+    if (e.key === '/') {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      if (activeTag !== 'input' && activeTag !== 'textarea') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+    } else if (e.key === 'Escape') {
       if (!deleteModal.classList.contains('hidden')) {
         deleteModal.classList.add('hidden');
       } else if (!lightboxModal.classList.contains('hidden')) {
         closeLightbox();
+      } else if (document.activeElement === searchInput) {
+        searchInput.blur();
       }
     } else if (e.key === 'ArrowLeft') {
       if (!lightboxModal.classList.contains('hidden') && deleteModal.classList.contains('hidden')) {

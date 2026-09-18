@@ -110,6 +110,23 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     assert.strictEqual(popularResults.artworks[0].likes >= popularResults.artworks[1].likes, true);
   });
 
+  await t.test('handles pagination boundaries, empty queries, and special characters safely', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
+    
+    // Negative page and excessive limit fallback
+    const boundedResults: PaginatedArtworks = await service.query({ page: -10, limit: 500 });
+    assert.strictEqual(boundedResults.page, 1);
+    assert.strictEqual(boundedResults.limit, 100);
+
+    // Special regex characters in search should not throw
+    const specialCharsResult: PaginatedArtworks = await service.query({ search: '.*+?^${}()|[]\\' });
+    assert.strictEqual(Array.isArray(specialCharsResult.artworks), true);
+
+    // Whitespace search should return all
+    const whitespaceResult: PaginatedArtworks = await service.query({ search: '   ' });
+    assert.strictEqual(whitespaceResult.artworks.length >= 2, true);
+  });
+
   await t.test('handles concurrent creations without race conditions', async (): Promise<void> => {
     const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
     const count: number = 5;
