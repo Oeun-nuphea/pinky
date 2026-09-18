@@ -27,6 +27,11 @@ async function safeDeleteFile(filePath: string): Promise<void> {
   }
 }
 
+type SortOption = 'newest' | 'oldest' | 'popular';
+
+const VALID_SORT_OPTIONS: ReadonlyArray<SortOption> = ['newest', 'oldest', 'popular'];
+const VALID_CATEGORIES: ReadonlyArray<string> = ['Digital', 'Pixel Art', 'Illustration', '3D', 'Traditional', 'Anime'];
+
 export function createArtworkRouter(storageService: ArtworkStorageService, upload: multer.Multer): Router {
   const router: Router = Router();
 
@@ -39,9 +44,8 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
       const category: string = typeof req.query.category === 'string' ? req.query.category : '';
       const sortByRaw: string = typeof req.query.sortBy === 'string' ? req.query.sortBy : 'newest';
 
-      const validSortOptions: Array<'newest' | 'oldest' | 'popular'> = ['newest', 'oldest', 'popular'];
-      const sortBy: 'newest' | 'oldest' | 'popular' = validSortOptions.includes(sortByRaw as 'newest' | 'oldest' | 'popular')
-        ? (sortByRaw as 'newest' | 'oldest' | 'popular')
+      const sortBy: SortOption = VALID_SORT_OPTIONS.includes(sortByRaw as SortOption)
+        ? (sortByRaw as SortOption)
         : 'newest';
 
       const queryOptions: ArtworkQueryOptions = {
@@ -152,9 +156,8 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         const title: string = typeof body.title === 'string' ? body.title.trim() : '';
         const author: string = typeof body.author === 'string' ? body.author.trim() : '';
         const description: string = typeof body.description === 'string' ? body.description.trim() : '';
-        const validCategories: string[] = ['Digital', 'Pixel Art', 'Illustration', '3D', 'Traditional', 'Anime'];
         const rawCategory: string = typeof body.category === 'string' && body.category.trim() ? body.category.trim() : 'Digital';
-        const matchedCategory: string | undefined = validCategories.find(
+        const matchedCategory: string | undefined = VALID_CATEGORIES.find(
           (c: string): boolean => c.toLowerCase() === rawCategory.toLowerCase()
         );
         const category: string = matchedCategory || 'Digital';

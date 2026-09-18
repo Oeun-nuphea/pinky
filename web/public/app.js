@@ -824,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         backToTopBtn.classList.add('hidden');
       }
-    });
+    }, { passive: true });
 
     backToTopBtn.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });

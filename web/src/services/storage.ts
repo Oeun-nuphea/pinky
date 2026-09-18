@@ -14,6 +14,7 @@ export class ArtworkStorageService {
   private readonly dataFilePath: string;
   private readonly uploadsDir: string;
   private writeLock: Promise<void> = Promise.resolve();
+  private cachedArtworks: Artwork[] | null = null;
 
   constructor(baseDir: string) {
     this.dataDir = path.join(baseDir, 'data');
@@ -31,6 +32,7 @@ export class ArtworkStorageService {
     }
     if (!fs.existsSync(this.dataFilePath)) {
       fs.writeFileSync(this.dataFilePath, JSON.stringify([], null, 2), 'utf-8');
+      this.cachedArtworks = [];
     }
   }
 
@@ -39,10 +41,15 @@ export class ArtworkStorageService {
   }
 
   public async getAll(): Promise<Artwork[]> {
+    if (this.cachedArtworks !== null) {
+      return [...this.cachedArtworks];
+    }
+
     try {
       const fileContent: string = await fs.promises.readFile(this.dataFilePath, 'utf-8');
       const records: RawArtworkRecord[] = JSON.parse(fileContent);
       if (!Array.isArray(records)) {
+        this.cachedArtworks = [];
         return [];
       }
 
@@ -75,8 +82,10 @@ export class ArtworkStorageService {
           });
         }
       }
-      return validArtworks;
+      this.cachedArtworks = validArtworks;
+      return [...validArtworks];
     } catch {
+      this.cachedArtworks = [];
       return [];
     }
   }
@@ -184,6 +193,7 @@ export class ArtworkStorageService {
 
     artworks.unshift(newArtwork);
     await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
+    this.cachedArtworks = [...artworks];
     return newArtwork;
   }
 
@@ -196,6 +206,7 @@ export class ArtworkStorageService {
 
     artworks[index].likes += 1;
     await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
+    this.cachedArtworks = [...artworks];
     return artworks[index];
   }
 
@@ -231,6 +242,7 @@ export class ArtworkStorageService {
 
     const removed: Artwork = artworks.splice(index, 1)[0];
     await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
+    this.cachedArtworks = [...artworks];
 
     if (removed.imageUrl && removed.imageUrl.startsWith('/uploads/')) {
       const filename: string = path.basename(removed.imageUrl);

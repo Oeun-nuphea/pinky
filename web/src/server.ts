@@ -22,23 +22,32 @@ const diskStorage: StorageEngine = multer.diskStorage({
   }
 });
 
+const ALLOWED_EXTENSIONS: ReadonlySet<string> = new Set<string>([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.webp',
+  '.svg'
+]);
+
+const ALLOWED_MIME_TYPES: ReadonlySet<string> = new Set<string>([
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'image/svg+xml'
+]);
+
 const fileFilter = (
   _req: Request,
   file: Express.Multer.File,
   callback: FileFilterCallback
 ): void => {
-  const allowedExtensions: string[] = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
-  const allowedMimeTypes: string[] = [
-    'image/jpeg',
-    'image/png',
-    'image/gif',
-    'image/webp',
-    'image/svg+xml'
-  ];
   const ext: string = path.extname(file.originalname).toLowerCase();
   const mime: string = file.mimetype.toLowerCase();
 
-  if (allowedExtensions.includes(ext) && allowedMimeTypes.includes(mime)) {
+  if (ALLOWED_EXTENSIONS.has(ext) && ALLOWED_MIME_TYPES.has(mime)) {
     callback(null, true);
   } else {
     callback(new Error('Invalid file type. Only JPG, PNG, GIF, WEBP, and SVG images are permitted.'));
@@ -66,12 +75,12 @@ app.use((_req: Request, res: Response, next: NextFunction): void => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend assets
+// Serve static frontend assets with caching
 const publicDir: string = path.join(baseDir, 'public');
-app.use(express.static(publicDir));
+app.use(express.static(publicDir, { maxAge: '1h' }));
 
-// Serve uploaded images
-app.use('/uploads', express.static(storageService.getUploadsDir()));
+// Serve uploaded images with aggressive caching
+app.use('/uploads', express.static(storageService.getUploadsDir(), { maxAge: '7d' }));
 
 // Health check endpoint
 app.get('/api/health', (_req: Request, res: Response): void => {

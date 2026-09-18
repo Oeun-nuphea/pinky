@@ -715,13 +715,6 @@ textarea:focus,
   word-break: break-word;
 }
 
-.art-card-author {
-  font-size: 0.85rem;
-  color: var(--primary);
-  font-weight: 600;
-  margin-bottom: 0.6rem;
-}
-
 .art-card-desc {
   font-size: 0.875rem;
   color: var(--text-muted);
@@ -1147,12 +1140,6 @@ textarea:focus,
 }
 
 /* Skeleton Loading Cards */
-.skeleton-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 1.75rem;
-}
-
 .skeleton-card {
   background: var(--bg-card);
   border: 1px solid var(--border-color);
