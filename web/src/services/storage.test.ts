@@ -99,6 +99,10 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     const searchResults: PaginatedArtworks = await service.query({ search: 'sunset' });
     assert.strictEqual(searchResults.artworks.length, 1);
     assert.strictEqual(searchResults.artworks[0].title, 'Watercolor Sunset Landscape');
+
+    const tagResults: PaginatedArtworks = await service.query({ search: 'watercolor' });
+    assert.strictEqual(tagResults.artworks.length, 1);
+    assert.strictEqual(tagResults.artworks[0].tags.includes('watercolor'), true);
   });
 
   await t.test('sorts artworks by popularity (likes)', async (): Promise<void> => {

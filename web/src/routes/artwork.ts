@@ -45,8 +45,10 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
   // GET /api/artworks with query filtering, sorting, and pagination
   router.get('/', async (req: Request, res: Response<ApiResponse<PaginatedArtworks>>): Promise<void> => {
     try {
-      const rawPage: number = req.query.page ? parseInt(req.query.page as string, 10) : 1;
-      const rawLimit: number = req.query.limit ? parseInt(req.query.limit as string, 10) : 12;
+      const rawPageStr: string = typeof req.query.page === 'string' ? req.query.page : '';
+      const rawLimitStr: string = typeof req.query.limit === 'string' ? req.query.limit : '';
+      const rawPage: number = rawPageStr ? parseInt(rawPageStr, 10) : 1;
+      const rawLimit: number = rawLimitStr ? parseInt(rawLimitStr, 10) : 12;
       const page: number = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
       const limit: number = isNaN(rawLimit) || rawLimit < 1 ? 12 : Math.min(rawLimit, 100);
       const rawSearch: string = typeof req.query.search === 'string' ? req.query.search.trim() : '';
@@ -251,9 +253,7 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
         
         let tags: string[] = [];
         if (typeof body.tags === 'string' && body.tags.trim().length > 0) {
-          const rawTokens: string[] = body.tags.includes(',')
-            ? body.tags.split(',')
-            : body.tags.split(/\s+/);
+          const rawTokens: string[] = body.tags.split(/[,\s]+/);
 
           tags = rawTokens
             .map((t: string): string => t.trim().replace(/^#+/, '').slice(0, 30))

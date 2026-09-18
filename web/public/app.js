@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnText = submitBtn.querySelector('.btn-text');
   const btnSpinner = submitBtn.querySelector('.btn-spinner');
   const feedbackMessage = document.getElementById('feedback-message');
+  const tagSuggestions = document.getElementById('tag-suggestions');
+  const tagSuggestionsList = document.getElementById('tag-suggestions-list');
 
   // Character counts
   const titleCharCount = document.getElementById('title-char-count');
@@ -309,7 +311,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <p class="art-card-desc">${art.description ? escapeHtml(art.description) : '<em>No description provided</em>'}</p>
           ${tagsHtml ? `<div class="card-tags">${tagsHtml}</div>` : ''}
           <div class="art-card-footer">
-            <span class="card-comment-count" title="${commentCount} comment${commentCount === 1 ? '' : 's'}">💬 ${commentCount}</span>
+            <div class="card-footer-meta">
+              <span class="card-comment-count" title="${commentCount} comment${commentCount === 1 ? '' : 's'}">💬 ${commentCount}</span>
+              <button type="button" class="card-quick-share-btn" title="Copy link to artwork" data-id="${art.id}">🔗 Share</button>
+            </div>
             <span>Posted ${dateStr}</span>
           </div>
         </div>
@@ -337,8 +342,79 @@ document.addEventListener('DOMContentLoaded', () => {
         handleLikeArtwork(art.id, card);
       });
 
+      // Quick share button click
+      const quickShareBtn = card.querySelector('.card-quick-share-btn');
+      if (quickShareBtn) {
+        quickShareBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const shareUrl = `${window.location.origin}${window.location.pathname}?art=${encodeURIComponent(art.id)}`;
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(shareUrl);
+            } else {
+              const tempInput = document.createElement('input');
+              tempInput.value = shareUrl;
+              document.body.appendChild(tempInput);
+              tempInput.select();
+              document.execCommand('copy');
+              document.body.removeChild(tempInput);
+            }
+            showToast('Artwork link copied to clipboard!', '🔗');
+          } catch {
+            showToast('Unable to copy link to clipboard', '⚠️');
+          }
+        });
+      }
+
       galleryGrid.appendChild(card);
     });
+
+    updateTagSuggestions(artworks);
+  }
+
+  function updateTagSuggestions(artworks) {
+    if (!tagSuggestions || !tagSuggestionsList) return;
+    const tagCounts = new Map();
+    (artworks || []).forEach((art) => {
+      (art.tags || []).forEach((t) => {
+        const clean = t.replace(/^#+/, '').trim().toLowerCase();
+        if (clean.length > 0) {
+          tagCounts.set(clean, (tagCounts.get(clean) || 0) + 1);
+        }
+      });
+    });
+
+    if (tagCounts.size === 0) {
+      tagSuggestions.classList.add('hidden');
+      return;
+    }
+
+    const sortedTags = Array.from(tagCounts.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map((entry) => entry[0]);
+
+    tagSuggestionsList.innerHTML = sortedTags
+      .map((tag) => `<button type="button" class="tag-suggest-chip" data-tag="${escapeHtml(tag)}">#${escapeHtml(tag)}</button>`)
+      .join('');
+
+    tagSuggestionsList.querySelectorAll('.tag-suggest-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const tagToAdd = chip.getAttribute('data-tag');
+        if (!tagToAdd) return;
+        const currentTokens = tagsInput.value
+          .split(/[,\s]+/)
+          .map((t) => t.replace(/^#+/, '').trim())
+          .filter(Boolean);
+        if (!currentTokens.includes(tagToAdd)) {
+          currentTokens.push(tagToAdd);
+          tagsInput.value = currentTokens.join(', ');
+          showToast(`Added #${tagToAdd}`, '🏷️');
+        }
+      });
+    });
+
+    tagSuggestions.classList.remove('hidden');
   }
 
   function renderPagination(meta) {
