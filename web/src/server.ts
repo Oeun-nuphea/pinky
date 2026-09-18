@@ -64,6 +64,15 @@ app.use(express.static(publicDir));
 // Serve uploaded images
 app.use('/uploads', express.static(storageService.getUploadsDir()));
 
+// Health check endpoint
+app.get('/api/health', (_req: Request, res: Response): void => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: Math.floor(process.uptime())
+  });
+});
+
 // API routes
 app.use('/api/artworks', createArtworkRouter(storageService, upload));
 

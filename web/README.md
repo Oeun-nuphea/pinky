@@ -53,7 +53,12 @@ npm run dev
 ### 3. Open in Browser
 Visit [http://localhost:3000](http://localhost:3000) in your web browser.
 
-### 4. Build for Production
+### 4. Run Automated Tests
+```bash
+npm test
+```
+
+### 5. Build for Production
 ```bash
 npm run build
 npm start
@@ -62,6 +67,18 @@ npm start
 ---
 
 ## REST API Reference
+
+### `GET /api/health`
+Returns service health status, timestamp, and uptime in seconds.
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-09-18T04:20:00.000Z",
+  "uptimeSeconds": 124
+}
+```
 
 ### `GET /api/artworks`
 Returns all posted artworks sorted with the newest first.
