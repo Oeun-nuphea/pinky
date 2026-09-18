@@ -41,6 +41,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const nextPageBtn = document.getElementById('next-page-btn');
   const pageIndicator = document.getElementById('page-indicator');
 
+  // Theme elements
+  const themeToggleBtn = document.getElementById('theme-toggle-btn');
+  const themeIcon = document.getElementById('theme-icon');
+
   // Lightbox elements
   const lightboxModal = document.getElementById('lightbox-modal');
   const lightboxImg = document.getElementById('lightbox-img');
@@ -52,8 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const lightboxDate = document.getElementById('lightbox-date');
   const lightboxLikesCount = document.getElementById('lightbox-likes-count');
   const lightboxLikeBtn = document.getElementById('lightbox-like-btn');
+  const lightboxShareBtn = document.getElementById('lightbox-share-btn');
+  const lightboxDownloadLink = document.getElementById('lightbox-download-link');
+  const lightboxDeleteBtn = document.getElementById('lightbox-delete-btn');
   const lightboxClose = document.getElementById('lightbox-close');
   const lightboxOverlay = document.getElementById('lightbox-overlay');
+
+  // Delete modal elements
+  const deleteModal = document.getElementById('delete-modal');
+  const deleteOverlay = document.getElementById('delete-overlay');
+  const deleteCancelBtn = document.getElementById('delete-cancel-btn');
+  const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
 
   // State
   let currentFile = null;
@@ -460,6 +473,29 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/'/g, '&#039;');
   }
 
+  // Theme Switcher
+  const savedTheme = localStorage.getItem('pinky-theme') || 'light';
+  if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeIcon.textContent = '☀️';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    themeIcon.textContent = '🌙';
+  }
+
+  themeToggleBtn.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      themeIcon.textContent = '🌙';
+      localStorage.setItem('pinky-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      themeIcon.textContent = '☀️';
+      localStorage.setItem('pinky-theme', 'dark');
+    }
+  });
+
   // Lightbox
   function openLightbox(art) {
     activeModalArtwork = art;
@@ -478,6 +514,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     lightboxDate.textContent = `Published on ${dateStr}`;
 
+    // Configure download link
+    const sanitizedTitle = (art.title || 'artwork').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const ext = art.imageUrl.split('.').pop() || 'png';
+    lightboxDownloadLink.href = art.imageUrl;
+    lightboxDownloadLink.download = `${sanitizedTitle}.${ext}`;
+
     if (art.tags && art.tags.length > 0) {
       lightboxTags.innerHTML = art.tags
         .map((t) => `<span class="tag-badge">#${escapeHtml(t)}</span>`)
@@ -488,6 +530,8 @@ document.addEventListener('DOMContentLoaded', () => {
       lightboxTags.classList.add('hidden');
     }
 
+    // Deep linking: update URL hash
+    history.replaceState(null, '', `#art-${art.id}`);
     lightboxModal.classList.remove('hidden');
   }
 
@@ -495,7 +539,64 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxModal.classList.add('hidden');
     lightboxImg.src = '';
     activeModalArtwork = null;
+    if (window.location.hash.startsWith('#art-')) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
   }
+
+  // Share button
+  lightboxShareBtn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      const originalText = lightboxShareBtn.textContent;
+      lightboxShareBtn.textContent = '✅ Copied!';
+      setTimeout(() => {
+        lightboxShareBtn.textContent = originalText;
+      }, 2000);
+    } catch {
+      prompt('Copy link to artwork:', window.location.href);
+    }
+  });
+
+  // Delete flow
+  lightboxDeleteBtn.addEventListener('click', () => {
+    deleteModal.classList.remove('hidden');
+  });
+
+  deleteCancelBtn.addEventListener('click', () => {
+    deleteModal.classList.add('hidden');
+  });
+
+  deleteOverlay.addEventListener('click', () => {
+    deleteModal.classList.add('hidden');
+  });
+
+  deleteConfirmBtn.addEventListener('click', async () => {
+    if (!activeModalArtwork) return;
+    const targetId = activeModalArtwork.id;
+    deleteConfirmBtn.disabled = true;
+    deleteConfirmBtn.textContent = 'Deleting...';
+
+    try {
+      const response = await fetch(`/api/artworks/${encodeURIComponent(targetId)}`, {
+        method: 'DELETE'
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to delete artwork');
+      }
+
+      deleteModal.classList.add('hidden');
+      closeLightbox();
+      showFeedback('Artwork deleted successfully.', 'success');
+      await loadArtworks();
+    } catch (err) {
+      alert(err.message || 'Error deleting artwork');
+    } finally {
+      deleteConfirmBtn.disabled = false;
+      deleteConfirmBtn.textContent = 'Yes, Delete';
+    }
+  });
 
   lightboxLikeBtn.addEventListener('click', () => {
     if (activeModalArtwork) {
@@ -508,11 +609,33 @@ document.addEventListener('DOMContentLoaded', () => {
   lightboxOverlay.addEventListener('click', closeLightbox);
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !lightboxModal.classList.contains('hidden')) {
-      closeLightbox();
+    if (e.key === 'Escape') {
+      if (!deleteModal.classList.contains('hidden')) {
+        deleteModal.classList.add('hidden');
+      } else if (!lightboxModal.classList.contains('hidden')) {
+        closeLightbox();
+      }
     }
   });
 
+  // Check URL hash on startup for direct deep linking
+  async function checkDirectDeepLink() {
+    if (window.location.hash.startsWith('#art-')) {
+      const artId = window.location.hash.replace('#art-', '');
+      try {
+        const response = await fetch(`/api/artworks/${encodeURIComponent(artId)}`);
+        const result = await response.json();
+        if (result.success && result.data) {
+          openLightbox(result.data);
+        }
+      } catch (err) {
+        console.error('Deep link failed:', err);
+      }
+    }
+  }
+
   // Initial load
-  loadArtworks();
+  loadArtworks().then(() => {
+    checkDirectDeepLink();
+  });
 });

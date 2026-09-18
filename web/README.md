@@ -147,3 +147,10 @@ Increments the like count of the specified artwork.
   }
 }
 ```
+
+### `GET /api/artworks/:id`
+Retrieves single artwork details by its unique identifier.
+
+### `DELETE /api/artworks/:id`
+Permanently deletes an artwork record and its associated image file from disk.
+

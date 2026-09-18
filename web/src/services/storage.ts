@@ -197,4 +197,52 @@ export class ArtworkStorageService {
     await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
     return artworks[index];
   }
+
+  public async getById(id: string): Promise<Artwork | null> {
+    const artworks: Artwork[] = await this.getAll();
+    const found: Artwork | undefined = artworks.find((art: Artwork): boolean => art.id === id);
+    return found || null;
+  }
+
+  public async delete(id: string): Promise<boolean> {
+    return new Promise<boolean>((resolve, reject): void => {
+      this.writeLock = this.writeLock
+        .then(async (): Promise<void> => {
+          try {
+            const success: boolean = await this.performDelete(id);
+            resolve(success);
+          } catch (error) {
+            reject(error);
+          }
+        })
+        .catch((error): void => {
+          reject(error);
+        });
+    });
+  }
+
+  private async performDelete(id: string): Promise<boolean> {
+    const artworks: Artwork[] = await this.getAll();
+    const index: number = artworks.findIndex((art: Artwork): boolean => art.id === id);
+    if (index === -1) {
+      return false;
+    }
+
+    const removed: Artwork = artworks.splice(index, 1)[0];
+    await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
+
+    if (removed.imageUrl && removed.imageUrl.startsWith('/uploads/')) {
+      const filename: string = path.basename(removed.imageUrl);
+      const filePath: string = path.join(this.uploadsDir, filename);
+      try {
+        if (fs.existsSync(filePath)) {
+          await fs.promises.unlink(filePath);
+        }
+      } catch {
+        // Ignore file cleanup error
+      }
+    }
+
+    return true;
+  }
 }

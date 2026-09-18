@@ -59,6 +59,50 @@ export function createArtworkRouter(storageService: ArtworkStorageService, uploa
     }
   });
 
+  // GET /api/artworks/:id
+  router.get('/:id', async (req: Request, res: Response<ApiResponse<Artwork>>): Promise<void> => {
+    try {
+      const artworkId: string = req.params.id;
+      if (!artworkId || artworkId.trim().length === 0) {
+        res.status(400).json({ success: false, error: 'Artwork ID is required.' });
+        return;
+      }
+
+      const artwork: Artwork | null = await storageService.getById(artworkId);
+      if (!artwork) {
+        res.status(404).json({ success: false, error: 'Artwork not found.' });
+        return;
+      }
+
+      res.status(200).json({ success: true, data: artwork });
+    } catch (error) {
+      const errorMessage: string = error instanceof Error ? error.message : 'Failed to retrieve artwork';
+      res.status(500).json({ success: false, error: errorMessage });
+    }
+  });
+
+  // DELETE /api/artworks/:id
+  router.delete('/:id', async (req: Request, res: Response<ApiResponse<{ id: string }>>): Promise<void> => {
+    try {
+      const artworkId: string = req.params.id;
+      if (!artworkId || artworkId.trim().length === 0) {
+        res.status(400).json({ success: false, error: 'Artwork ID is required.' });
+        return;
+      }
+
+      const deleted: boolean = await storageService.delete(artworkId);
+      if (!deleted) {
+        res.status(404).json({ success: false, error: 'Artwork not found.' });
+        return;
+      }
+
+      res.status(200).json({ success: true, data: { id: artworkId } });
+    } catch (error) {
+      const errorMessage: string = error instanceof Error ? error.message : 'Failed to delete artwork';
+      res.status(500).json({ success: false, error: errorMessage });
+    }
+  });
+
   // POST /api/artworks/:id/like
   router.post('/:id/like', async (req: Request, res: Response<ApiResponse<Artwork>>): Promise<void> => {
     try {

@@ -127,5 +127,34 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     assert.strictEqual(all.length, 2 + count);
   });
 
+  await t.test('retrieves artwork by id and handles delete', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
+    const created: Artwork = await service.create(
+      {
+        title: 'Temporary Piece',
+        author: 'TempArtist',
+        description: 'To be deleted',
+        category: 'Digital'
+      },
+      'temp-art.png'
+    );
+
+    const fetched: Artwork | null = await service.getById(created.id);
+    assert.notStrictEqual(fetched, null);
+    if (fetched) {
+      assert.strictEqual(fetched.id, created.id);
+      assert.strictEqual(fetched.title, 'Temporary Piece');
+    }
+
+    const deleteSuccess: boolean = await service.delete(created.id);
+    assert.strictEqual(deleteSuccess, true);
+
+    const fetchedAgain: Artwork | null = await service.getById(created.id);
+    assert.strictEqual(fetchedAgain, null);
+
+    const nonExistentDelete: boolean = await service.delete('fake-id-999');
+    assert.strictEqual(nonExistentDelete, false);
+  });
+
   cleanupTestDir();
 });
