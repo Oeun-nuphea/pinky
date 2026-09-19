@@ -108,6 +108,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  function removeFavorite(id) {
+    const favs = getFavorites().filter((favId) => favId !== id);
+    localStorage.setItem('pinky-favorites', JSON.stringify(favs));
+  }
+
   // State
   let currentFile = null;
   let activeCategory = 'all';
@@ -347,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (quickShareBtn) {
         quickShareBtn.addEventListener('click', async (e) => {
           e.stopPropagation();
-          const shareUrl = `${window.location.origin}${window.location.pathname}?art=${encodeURIComponent(art.id)}`;
+          const shareUrl = `${window.location.origin}${window.location.pathname}#art-${encodeURIComponent(art.id)}`;
           try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
               await navigator.clipboard.writeText(shareUrl);
@@ -783,8 +788,9 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxDesc.textContent = art.description || 'No description provided for this artwork.';
     lightboxLikesCount.textContent = (art.likes || 0).toString();
 
-    // Toggle navigation arrows visibility based on list size
-    if (!currentArtworksList || currentArtworksList.length <= 1) {
+    // Toggle navigation arrows visibility based on list size and containment
+    const isItemInList = currentArtworksList && currentArtworksList.some((a) => a.id === art.id);
+    if (!isItemInList || currentArtworksList.length <= 1) {
       if (lightboxPrevBtn) lightboxPrevBtn.classList.add('hidden');
       if (lightboxNextBtn) lightboxNextBtn.classList.add('hidden');
     } else {
@@ -837,8 +843,15 @@ document.addEventListener('DOMContentLoaded', () => {
     activeModalArtwork = null;
     if (lightboxCommentForm) lightboxCommentForm.reset();
     document.body.style.overflow = '';
-    if (window.location.hash.startsWith('#art-')) {
-      history.replaceState(null, '', window.location.pathname + window.location.search);
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasArtQuery = urlParams.has('art');
+    if (window.location.hash.startsWith('#art-') || hasArtQuery) {
+      if (hasArtQuery) {
+        urlParams.delete('art');
+      }
+      const searchStr = urlParams.toString();
+      const newUrl = window.location.pathname + (searchStr ? `?${searchStr}` : '');
+      history.replaceState(null, '', newUrl);
     }
   }
 
@@ -958,10 +971,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Lightbox carousel navigation
   function navigateLightbox(direction) {
-    if (!currentArtworksList || currentArtworksList.length <= 1) return;
+    if (!currentArtworksList || currentArtworksList.length === 0) return;
     const currentIndex = currentArtworksList.findIndex((a) => a.id === activeModalArtwork?.id);
-    if (currentIndex === -1) return;
-    const newIndex = (currentIndex + direction + currentArtworksList.length) % currentArtworksList.length;
+    let newIndex;
+    if (currentIndex === -1) {
+      newIndex = direction > 0 ? 0 : currentArtworksList.length - 1;
+    } else {
+      newIndex = (currentIndex + direction + currentArtworksList.length) % currentArtworksList.length;
+    }
     openLightbox(currentArtworksList[newIndex]);
   }
 
@@ -1020,6 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(result.error || 'Failed to delete artwork');
       }
 
+      removeFavorite(targetId);
       deleteModal.classList.add('hidden');
       closeLightbox();
       showFeedback('Artwork deleted successfully.', 'success');
@@ -1107,10 +1125,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Check URL hash on startup for direct deep linking
+  // Check URL hash or ?art query param on startup for direct deep linking
   async function checkDirectDeepLink() {
+    let artId = '';
     if (window.location.hash.startsWith('#art-')) {
-      const artId = window.location.hash.replace('#art-', '');
+      artId = window.location.hash.replace('#art-', '').trim();
+    } else {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryArt = urlParams.get('art');
+      if (queryArt && queryArt.trim()) {
+        artId = queryArt.trim();
+      }
+    }
+
+    if (artId) {
       try {
         const response = await fetch(`/api/artworks/${encodeURIComponent(artId)}`);
         const result = await response.json();

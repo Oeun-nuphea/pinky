@@ -246,5 +246,54 @@ test('ArtworkStorageService Suite', async (t: TestContext): Promise<void> => {
     assert.strictEqual(stats.totalComments >= 1, true);
   });
 
+  await t.test('invalidates in-memory cache on write failure and synchronizes with disk', async (): Promise<void> => {
+    const service: ArtworkStorageService = new ArtworkStorageService(testBaseDir);
+    const initialAll: Artwork[] = await service.getAll();
+    const countBefore: number = initialAll.length;
+
+    const dataFilePath: string = path.join(testBaseDir, 'data', 'artworks.json');
+    const diskContent: string = await fs.promises.readFile(dataFilePath, 'utf-8');
+    const records: Artwork[] = JSON.parse(diskContent);
+    const injectedArtwork: Artwork = {
+      id: 'injected-id',
+      title: 'Injected Directly',
+      author: 'DirectDisk',
+      description: 'Disk bypass',
+      category: 'Digital',
+      tags: ['disk'],
+      imageUrl: '/uploads/injected.png',
+      likes: 0,
+      comments: [],
+      createdAt: new Date().toISOString()
+    };
+    records.push(injectedArtwork);
+
+    await fs.promises.writeFile(dataFilePath, JSON.stringify(records, null, 2), 'utf-8');
+
+    const cachedResult: Artwork[] = await service.getAll();
+    assert.strictEqual(cachedResult.length, countBefore);
+
+    const backupFilePath: string = dataFilePath + '.bak';
+    await fs.promises.rename(dataFilePath, backupFilePath);
+    await fs.promises.mkdir(dataFilePath);
+
+    let writeFailed: boolean = false;
+    try {
+      await service.like(initialAll[0].id);
+    } catch {
+      writeFailed = true;
+    } finally {
+      await fs.promises.rmdir(dataFilePath);
+      await fs.promises.rename(backupFilePath, dataFilePath);
+    }
+
+    assert.strictEqual(writeFailed, true, 'Write should fail when target is a directory');
+
+    const reloaded: Artwork[] = await service.getAll();
+    assert.strictEqual(reloaded.length, countBefore + 1);
+    const foundInjected: Artwork | undefined = reloaded.find((a: Artwork): boolean => a.id === 'injected-id');
+    assert.notStrictEqual(foundInjected, undefined);
+  });
+
   cleanupTestDir();
 });

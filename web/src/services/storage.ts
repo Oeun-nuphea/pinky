@@ -193,6 +193,16 @@ export class ArtworkStorageService {
     });
   }
 
+  private async commitArtworks(artworks: Artwork[]): Promise<void> {
+    try {
+      await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
+      this.cachedArtworks = [...artworks];
+    } catch (error) {
+      this.cachedArtworks = null;
+      throw error;
+    }
+  }
+
   private async performCreate(dto: CreateArtworkDto, filename: string): Promise<Artwork> {
     const artworks: Artwork[] = await this.getAll();
     const uniqueId: string = Date.now().toString(36) + Math.random().toString(36).substring(2, 8);
@@ -215,8 +225,7 @@ export class ArtworkStorageService {
     };
 
     artworks.unshift(newArtwork);
-    await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
-    this.cachedArtworks = [...artworks];
+    await this.commitArtworks(artworks);
     return newArtwork;
   }
 
@@ -228,8 +237,7 @@ export class ArtworkStorageService {
     }
 
     artworks[index].likes += 1;
-    await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
-    this.cachedArtworks = [...artworks];
+    await this.commitArtworks(artworks);
     return artworks[index];
   }
 
@@ -264,8 +272,7 @@ export class ArtworkStorageService {
     }
 
     const removed: Artwork = artworks.splice(index, 1)[0];
-    await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
-    this.cachedArtworks = [...artworks];
+    await this.commitArtworks(artworks);
 
     if (removed.imageUrl && removed.imageUrl.startsWith('/uploads/')) {
       const filename: string = path.basename(removed.imageUrl);
@@ -319,8 +326,7 @@ export class ArtworkStorageService {
     }
     artworks[index].comments.push(newComment);
 
-    await fs.promises.writeFile(this.dataFilePath, JSON.stringify(artworks, null, 2), 'utf-8');
-    this.cachedArtworks = [...artworks];
+    await this.commitArtworks(artworks);
     return newComment;
   }
 
